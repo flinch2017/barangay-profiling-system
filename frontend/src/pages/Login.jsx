@@ -1,92 +1,92 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
+import "../styles/Login.css";
 
 export default function Login() {
-
   const navigate = useNavigate();
 
-  const [username, setUsername] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-      const data = await loginUser(
-        username,
-        password
-      );
+      const data = await loginUser(username, password);
 
-      localStorage.setItem(
-        "token",
-        data.token
-      );
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(data.user)
-      );
-
-      if (
-        data.user.role ===
-        "system_admin"
-      ) {
-        navigate(
-          "/system/dashboard"
-        );
+      if (data.user.role === "system_admin") {
+        navigate("/system/dashboard");
       } else {
-        navigate(
-          "/barangay/dashboard"
-        );
+        navigate("/barangay/dashboard");
       }
-
     } catch {
       alert("Invalid Login");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="login-wrapper">
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg p-8 rounded-xl w-96"
-      >
-        <h1 className="text-2xl font-bold mb-6">
-          Barangay Profiling System
-        </h1>
+      {/* LEFT PANEL */}
+      <div className="login-left">
+        <div className="branding">
+          <h1>Barangay Profiling System</h1>
+          <p>
+            A centralized platform for resident profiling,
+            certificate generation, and barangay administration.
+          </p>
+          <span>c 2026 Dossier Creatives</span>
+        </div>
+      </div>
 
-        <input
-          type="text"
-          placeholder="Username"
-          className="border w-full p-3 mb-3"
-          value={username}
-          onChange={(e) =>
-            setUsername(e.target.value)
-          }
-        />
+      {/* RIGHT PANEL */}
+      <div className="login-right">
+        <div className="login-card">
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="border w-full p-3 mb-4"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-        />
+          <h2>Sign In</h2>
+          <p>Enter your credentials to continue</p>
 
-        <button
-          className="w-full bg-blue-600 text-white p-3 rounded"
-        >
-          Login
-        </button>
+          <form onSubmit={handleSubmit}>
 
-      </form>
+            <label>Username</label>
+            <input
+              type="text"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button disabled={loading}>
+              {loading ? "Signing in..." : "Login"}
+            </button>
+
+          </form>
+
+          <div className="signup-text">
+            Need a barangay admin account?{" "}
+            <Link to="/signup/barangay-admin">
+              Sign up
+            </Link>
+          </div>
+
+        </div>
+      </div>
 
     </div>
   );

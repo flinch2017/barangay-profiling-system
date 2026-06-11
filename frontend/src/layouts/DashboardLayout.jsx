@@ -1,29 +1,34 @@
-import { Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
+import "../styles/global.css";
 
 export default function DashboardLayout() {
-
-  const user = JSON.parse(
-    localStorage.getItem("user")
-  );
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
-    <div className="flex">
+    <div className="dashboard-layout">
 
-      <aside className="w-64 min-h-screen bg-slate-900 text-white">
+      {/* SIDEBAR (ONLY ONCE HERE) */}
+      <aside className="sidebar">
 
-        <div className="p-5 border-b">
-          <h2 className="font-bold">
-            Barangay System
-          </h2>
+        <div className="sidebar-header">
+          <h2>Barangay System</h2>
+          <p>{user?.username}</p>
         </div>
 
-        <div className="p-4">
-          {user.username}
-        </div>
+        <nav className="sidebar-nav">
+
+          <NavLink to="/barangay/dashboard">Dashboard</NavLink>
+          <NavLink to="/barangay/residents">Residents</NavLink>
+          <NavLink to="/barangay/certificates">Certificates</NavLink>
+          <NavLink to="/barangay/officials">Officials</NavLink>
+          <NavLink to="/barangay/settings">Settings</NavLink>
+
+        </nav>
 
       </aside>
 
-      <main className="flex-1 p-6">
+      {/* MAIN CONTENT */}
+      <main className="dashboard-main">
         <Outlet />
       </main>
 

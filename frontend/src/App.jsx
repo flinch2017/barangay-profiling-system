@@ -4,6 +4,7 @@ import {
 } from "react-router-dom";
 
 import Login from "./pages/Login";
+import BarangaySignup from "./pages/BarangaySignup";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 import SystemDashboard from "./pages/SystemDashboard";
@@ -16,6 +17,11 @@ function App() {
       <Route
         path="/"
         element={<Login />}
+      />
+
+      <Route
+        path="/signup/barangay-admin"
+        element={<BarangaySignup />}
       />
 
       <Route
