@@ -9,6 +9,13 @@ import DashboardLayout from "./layouts/DashboardLayout";
 
 import SystemDashboard from "./pages/SystemDashboard";
 import BarangayDashboard from "./pages/BarangayDashboard";
+import Residents from "./pages/Residents";
+import Certificates from "./pages/Certificates";
+import Officials from "./pages/Officials";
+import Settings from "./pages/Settings";
+import ResidentProfile from "./pages/ResidentProfile";
+import AddResident from "./pages/AddResident";
+
 
 function App() {
   return (
@@ -36,6 +43,37 @@ function App() {
           path="/barangay/dashboard"
           element={<BarangayDashboard />}
         />
+
+        <Route
+          path="/barangay/residents"
+          element={<Residents />}
+        />
+
+        <Route
+          path="/barangay/residents/:residentId"
+          element={<ResidentProfile />}
+        />
+
+        <Route
+          path="/barangay/residents/new"
+          element={<AddResident />}
+        />  
+
+        <Route
+          path="/barangay/certificates"
+          element={<Certificates />}
+        />
+
+        <Route
+          path="/barangay/officials"
+          element={<Officials />}
+        />
+
+        <Route
+          path="/barangay/settings"
+          element={<Settings />}
+        />
+
       </Route>
 
     </Routes>

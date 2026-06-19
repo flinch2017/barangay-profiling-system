@@ -7,27 +7,40 @@ export default function DashboardLayout() {
   return (
     <div className="dashboard-layout">
 
-      {/* SIDEBAR (ONLY ONCE HERE) */}
       <aside className="sidebar">
 
-        <div className="sidebar-header">
-          <h2>Barangay System</h2>
-          <p>{user?.username}</p>
+        {/* TOP SECTION */}
+        <div>
+          <div className="sidebar-header">
+            <h2>Barangay System</h2>
+            <p>{user?.username}</p>
+          </div>
+
+          <nav className="sidebar-nav">
+            <NavLink to="/barangay/dashboard">Dashboard</NavLink>
+            <NavLink to="/barangay/residents">Residents</NavLink>
+            <NavLink to="/barangay/certificates">Certificates</NavLink>
+            <NavLink to="/barangay/officials">Officials</NavLink>
+            <NavLink to="/barangay/settings">Settings</NavLink>
+          </nav>
         </div>
 
-        <nav className="sidebar-nav">
+        {/* BOTTOM USER SECTION */}
+        <div className="sidebar-user">
+          <button className="user-btn">
+            <div className="avatar">
+              {user?.username?.charAt(0).toUpperCase()}
+            </div>
 
-          <NavLink to="/barangay/dashboard">Dashboard</NavLink>
-          <NavLink to="/barangay/residents">Residents</NavLink>
-          <NavLink to="/barangay/certificates">Certificates</NavLink>
-          <NavLink to="/barangay/officials">Officials</NavLink>
-          <NavLink to="/barangay/settings">Settings</NavLink>
-
-        </nav>
+            <div className="user-info">
+              <p className="name">{user?.username}</p>
+              <small>Signed in</small>
+            </div>
+          </button>
+        </div>
 
       </aside>
 
-      {/* MAIN CONTENT */}
       <main className="dashboard-main">
         <Outlet />
       </main>

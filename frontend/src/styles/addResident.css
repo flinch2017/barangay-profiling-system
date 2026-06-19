@@ -1,0 +1,103 @@
+.add-resident-page {
+  padding: 20px;
+}
+
+/* HEADER */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.back-btn {
+  padding: 8px 12px;
+  border: none;
+  background: #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* FORM CARD */
+.resident-form {
+  margin-top: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* GRID (DESKTOP DEFAULT) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.grid input,
+.grid select {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* CHECKBOX SECTION */
+.checkboxes {
+  margin-top: 15px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* BUTTON */
+.submit-btn {
+  margin-top: 20px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* =========================
+   📱 TABLET (2 columns)
+========================= */
+@media (max-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =========================
+   📱 MOBILE (1 column)
+========================= */
+@media (max-width: 600px) {
+  .add-resident-page {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resident-form {
+    padding: 14px;
+  }
+
+  .checkboxes {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+}
