@@ -10,6 +10,7 @@ import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import residentsRoutes from "./routes/residents.js";
+import officialsRoutes from "./routes/officials.js";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/residents", residentsRoutes);
+app.use("/api/officials", officialsRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);

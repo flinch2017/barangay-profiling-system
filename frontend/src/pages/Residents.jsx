@@ -4,8 +4,25 @@ import "../styles/residents.css";
 
 export default function Residents() {
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
+
+
+  const totalResidents = residents.length;
+
+  const indexOfLastResident = currentPage * rowsPerPage;
+  const indexOfFirstResident = indexOfLastResident - rowsPerPage;
+
+  const currentResidents = residents.slice(
+    indexOfFirstResident,
+    indexOfLastResident
+  );
+
+  const totalPages = Math.ceil(
+    totalResidents / rowsPerPage
+  );
 
   useEffect(() => {
     fetchResidents();
@@ -43,6 +60,51 @@ export default function Residents() {
         </button>
       </div>
 
+      <div className="toolbar">
+
+        <input
+          type="text"
+          placeholder="Search resident..."
+          className="search-input"
+        />
+
+        <select
+          value={rowsPerPage}
+          onChange={(e) => {
+            setRowsPerPage(Number(e.target.value));
+            setCurrentPage(1);
+          }}
+        >
+          <option value={10}>10 rows</option>
+          <option value={25}>25 rows</option>
+          <option value={50}>50 rows</option>
+        </select>
+
+      </div>
+
+      <div className="stats-row">
+
+        <div className="stat-card">
+          <span>Total Residents</span>
+          <h2>{residents.length}</h2>
+        </div>
+
+        <div className="stat-card">
+          <span>Senior Citizens</span>
+          <h2>
+            {residents.filter(r => r.senior_citizen).length}
+          </h2>
+        </div>
+
+        <div className="stat-card">
+          <span>4Ps Beneficiaries</span>
+          <h2>
+            {residents.filter(r => r.fourps_beneficiary).length}
+          </h2>
+        </div>
+
+      </div>
+
       <div className="table-container">
 
         {loading ? (
@@ -66,7 +128,7 @@ export default function Residents() {
             </thead>
 
             <tbody>
-              {residents.map((r) => (
+              {currentResidents.map((r) => (
                 <tr
                   key={r.resident_id}
                   className="clickable-row"
@@ -96,7 +158,39 @@ export default function Residents() {
             </tbody>
 
           </table>
+
+          
         )}
+
+        <div className="pagination">
+
+          <button
+            onClick={() =>
+              setCurrentPage(prev =>
+                Math.max(prev - 1, 1)
+              )
+            }
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            onClick={() =>
+              setCurrentPage(prev =>
+                Math.min(prev + 1, totalPages)
+              )
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+
+        </div>
 
       </div>
 

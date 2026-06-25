@@ -11,6 +11,8 @@
   background: var(--primary);
   color: white;
   padding: 20px;
+  position: sticky;
+  top: 0;
 }
 
 .sidebar-header h2 {

@@ -15,6 +15,7 @@ import Officials from "./pages/Officials";
 import Settings from "./pages/Settings";
 import ResidentProfile from "./pages/ResidentProfile";
 import AddResident from "./pages/AddResident";
+import AddOfficial from "./pages/AddOfficials";
 
 
 function App() {
@@ -67,6 +68,16 @@ function App() {
         <Route
           path="/barangay/officials"
           element={<Officials />}
+        />
+
+        <Route
+          path="/barangay/officials/new"
+          element={<AddOfficial />}
+        />
+
+        <Route
+          path="/barangay/officials/:officialId"
+          element={<AddOfficial />}
         />
 
         <Route

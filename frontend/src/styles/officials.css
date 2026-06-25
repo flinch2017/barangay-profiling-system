@@ -1,0 +1,45 @@
+.officials-page {
+  width: 100%;
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+}
+
+.officials-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.officials-table th,
+.officials-table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.officials-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background: #f8fafc;
+}
+
+.official-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+}

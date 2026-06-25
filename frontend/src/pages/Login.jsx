@@ -12,6 +12,12 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!username.trim() || !password.trim()) {
+      alert("Please enter both username and password.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -62,6 +68,7 @@ export default function Login() {
               placeholder="Enter username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
 
             <label>Password</label>
@@ -70,9 +77,17 @@ export default function Login() {
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
-            <button disabled={loading}>
+            <button
+              type="submit"
+              disabled={
+                loading ||
+                !username.trim() ||
+                !password.trim()
+              }
+            >
               {loading ? "Signing in..." : "Login"}
             </button>
 

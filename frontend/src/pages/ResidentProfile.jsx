@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import "../styles/residentProfile.css";
 
 export default function ResidentProfile() {
@@ -34,18 +35,82 @@ export default function ResidentProfile() {
   if (loading) return <p>Loading profile...</p>;
   if (!resident) return <p>Resident not found.</p>;
 
+  async function handleDelete() {
+    const confirmed = window.confirm(
+      `Delete ${resident.first_name} ${resident.last_name}?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/residents/${residentId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message);
+      }
+
+      alert("Resident deleted successfully.");
+
+      navigate("/barangay/residents");
+
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    }
+  }
+
   return (
     <div className="resident-profile">
 
       {/* HEADER */}
       <div className="profile-header">
-        <button className="back-btn" onClick={() => navigate("/barangay/residents")}>
-          ← Back
-        </button>
 
-        <h1>
-          {resident.first_name} {resident.last_name}
-        </h1>
+        <div className="header-left">
+          <button
+            className="back-btn"
+            onClick={() => navigate("/barangay/residents")}
+          >
+            ← Back
+          </button>
+
+          <h1>
+            {resident.first_name} {resident.last_name}
+          </h1>
+        </div>
+
+        <div className="header-actions">
+
+          <button
+            className="icon-btn edit-btn"
+            onClick={() =>
+              navigate(
+                `/barangay/residents/${resident.resident_id}/edit`
+              )
+            }
+            title="Edit Resident"
+            hint="Edit Resident"
+          >
+            <FiEdit2 />
+          </button>
+
+          <button
+            className="icon-btn delete-btn"
+            onClick={handleDelete}
+            title="Delete Resident"
+            hint="Delete Resident"
+          >
+            <FiTrash2 />
+          </button>
+
+        </div>
+
       </div>
 
       {/* MAIN GRID */}
