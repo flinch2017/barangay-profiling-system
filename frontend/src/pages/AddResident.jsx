@@ -26,6 +26,13 @@ export default function AddResident() {
     occupation: "",
     salary: "",
     educational_level: "",
+    educational_level: "",
+
+    school_name: "",
+    year_level: "",
+    course: "",
+    currently_enrolled: false,
+    graduation_year: "",
     fourps_beneficiary: false,
     senior_citizen: false,
     voter: false,
@@ -72,11 +79,7 @@ export default function AddResident() {
 
       formData.append("barangay_id", user.barangayId);
 
-      // numbers
-      formData.set(
-        "salary",
-        form.salary ? Number(form.salary) : ""
-      );
+      
 
       // files
       if (files.pfp) formData.append("pfp", files.pfp);
@@ -294,27 +297,27 @@ export default function AddResident() {
               >
                 <option value="">Select Income Bracket</option>
 
-                <option value="Below 5000">
+                <option value="Below ₱5000">
                   Below ₱5,000
                 </option>
 
-                <option value="5000-9999">
+                <option value="₱5,000-₱9,999">
                   ₱5,000 - ₱9,999
                 </option>
 
-                <option value="10000-14999">
+                <option value="₱10,000-₱14,999">
                   ₱10,000 - ₱14,999
                 </option>
 
-                <option value="15000-24999">
+                <option value="₱15,000-₱24,999">
                   ₱15,000 - ₱24,999
                 </option>
 
-                <option value="25000-49999">
+                <option value="₱25,000-₱49,999">
                   ₱25,000 - ₱49,999
                 </option>
 
-                <option value="50000+">
+                <option value="₱50,000+">
                   ₱50,000 and above
                 </option>
               </select>
@@ -378,6 +381,143 @@ export default function AddResident() {
                   Doctorate Degree
                 </option>
               </select>
+
+              {form.educational_level &&
+                form.educational_level !== "No Formal Education" && (
+
+                  <>
+                    <div className="form-group">
+                      <label>School Name</label>
+
+                      <input
+                        name="school_name"
+                        value={form.school_name}
+                        onChange={handleChange}
+                        placeholder="Enter school name"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Currently Enrolled</label>
+
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          name="currently_enrolled"
+                          checked={form.currently_enrolled}
+                          onChange={handleChange}
+                        />
+                        Yes
+                      </label>
+                    </div>
+                  </>
+              )}
+
+              {[
+                "Elementary Undergraduate",
+                "Junior High School Undergraduate",
+                "Senior High School Undergraduate",
+              ].includes(form.educational_level) && (
+
+                <div className="form-group">
+                  <label>Current Year Level</label>
+
+                  <input
+                    name="year_level"
+                    value={form.year_level}
+                    onChange={handleChange}
+                    placeholder="Example: Grade 4, Grade 8, Grade 11"
+                  />
+                </div>
+              )}
+
+              {form.educational_level === "Vocational" && (
+                <>
+                  <div className="form-group">
+                    <label>Course / Training Program</label>
+
+                    <input
+                      name="course"
+                      value={form.course}
+                      onChange={handleChange}
+                      placeholder="Example: Automotive NC II"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Year Completed</label>
+
+                    <input
+                      type="number"
+                      name="graduation_year"
+                      value={form.graduation_year}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </>
+              )}
+
+              {form.educational_level === "College Undergraduate" && (
+                <>
+                  <div className="form-group">
+                    <label>Course</label>
+
+                    <input
+                      name="course"
+                      value={form.course}
+                      onChange={handleChange}
+                      placeholder="BS Information Technology"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Year Level</label>
+
+                    <select
+                      name="year_level"
+                      value={form.year_level}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Year</option>
+                      <option>1st Year</option>
+                      <option>2nd Year</option>
+                      <option>3rd Year</option>
+                      <option>4th Year</option>
+                      <option>5th Year</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {[
+                "College Graduate",
+                "Master's Degree",
+                "Doctorate Degree",
+              ].includes(form.educational_level) && (
+                <>
+                  <div className="form-group">
+                    <label>Course / Degree</label>
+
+                    <input
+                      name="course"
+                      value={form.course}
+                      onChange={handleChange}
+                      placeholder="Example: BSIT"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Year Graduated</label>
+
+                    <input
+                      type="number"
+                      name="graduation_year"
+                      value={form.graduation_year}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
           </div>

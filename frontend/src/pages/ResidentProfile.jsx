@@ -116,26 +116,146 @@ export default function ResidentProfile() {
       {/* MAIN GRID */}
       <div className="profile-grid">
 
+        <div className="main-column">
+
         {/* INFO CARD */}
         <div className="profile-card">
           <h2>Personal Information</h2>
 
           <div className="info-grid">
-            <p><b>Gender:</b> {resident.gender}</p>
-            <p><b>Birthdate:</b> {resident.birthdate}</p>
-            <p><b>Civil Status:</b> {resident.civil_status}</p>
-            <p><b>Contact:</b> {resident.contact_number}</p>
-            <p><b>Email:</b> {resident.email}</p>
-            <p><b>Address:</b> {resident.street}, {resident.purok}</p>
-            <p><b>Occupation:</b> {resident.occupation}</p>
-            <p><b>Salary:</b> ₱{resident.salary}</p>
-            <p><b>Education:</b> {resident.educational_level}</p>
-            <p><b>Status:</b> {resident.resident_status}</p>
 
-            <p><b>4Ps:</b> {resident.fourps_beneficiary ? "Yes" : "No"}</p>
-            <p><b>Senior:</b> {resident.senior_citizen ? "Yes" : "No"}</p>
-            <p><b>Voter:</b> {resident.voter ? "Yes" : "No"}</p>
+            <p><b>First Name:</b> {resident.first_name}</p>
+
+            <p><b>Last Name:</b> {resident.last_name}</p>
+
+            {resident.middle_name && (
+              <p><b>Middle Name:</b> {resident.middle_name}</p>
+            )}
+
+            {resident.suffix && (
+              <p><b>Suffix:</b> {resident.suffix}</p>
+            )}
+
+            {resident.gender && (
+              <p><b>Gender:</b> {resident.gender}</p>
+            )}
+
+            {resident.birthdate && (
+              <p><b>Birthdate:</b> {resident.birthdate}</p>
+            )}
+
+            {resident.civil_status && (
+              <p><b>Civil Status:</b> {resident.civil_status}</p>
+            )}
+
+            {resident.contact_number && (
+              <p><b>Contact:</b> {resident.contact_number}</p>
+            )}
+
+            {resident.email && (
+              <p><b>Email:</b> {resident.email}</p>
+            )}
+
+            {(resident.street ||
+              resident.purok ||
+              resident.barangay_name) && (
+              <p>
+                <b>Address:</b>{" "}
+                {[
+                  resident.street,
+                  resident.purok && `Purok ${resident.purok}`,
+                  resident.barangay_name,
+                  resident.municipality,
+                  resident.province,
+                  resident.country,
+                  resident.zip_code,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            )}
+
+            {resident.occupation && (
+              <p><b>Occupation:</b> {resident.occupation}</p>
+            )}
+
+            {resident.salary && (
+              <p><b>Salary:</b> {resident.salary}</p>
+            )}
+
+            {resident.resident_status && (
+              <p><b>Status:</b> {resident.resident_status}</p>
+            )}
+
+            {resident.fourps_beneficiary && (
+              <p><b>4Ps Beneficiary:</b> Yes</p>
+            )}
+
+            {resident.senior_citizen && (
+              <p><b>Senior Citizen:</b> Yes</p>
+            )}
+
+            {resident.voter && (
+              <p><b>Registered Voter:</b> Yes</p>
+            )}
+
           </div>
+        </div>
+
+        <div className="profile-card">
+          <h2>Education Information</h2>
+
+          <div className="info-grid">
+
+            <p>
+              <b>Highest Educational Attainment:</b>
+              {" "}
+              {resident.educational_level}
+            </p>
+
+            {resident.school_name && (
+              <p>
+                <b>Name of School:</b>
+                {" "}
+                {resident.school_name}
+              </p>
+            )}
+
+            {resident.course && (
+              <p>
+                <b>Program/Course:</b>
+                {" "}
+                {resident.course}
+              </p>
+            )}
+
+            {resident.year_level && (
+              <p>
+                <b>Year Level:</b>
+                {" "}
+                {resident.year_level}
+              </p>
+            )}
+
+            {resident.graduation_year && (
+              <p>
+                <b>Graduation Year:</b>
+                {" "}
+                {resident.graduation_year}
+              </p>
+            )}
+
+            <p>
+              <b>Enrollment Status:</b>
+              {" "}
+              {resident.currently_enrolled
+                ? "Currently Enrolled"
+                : "Not Enrolled"}
+            </p>
+
+          </div>
+        </div>
+
         </div>
 
         {/* RIGHT SIDE */}

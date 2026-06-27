@@ -16,6 +16,8 @@ import Settings from "./pages/Settings";
 import ResidentProfile from "./pages/ResidentProfile";
 import AddResident from "./pages/AddResident";
 import AddOfficial from "./pages/AddOfficials";
+import CertificateResidentSelect from "./pages/CertificateResidentSelect";
+import CertificateGeneration from "./pages/CertificateGeneration";
 
 
 function App() {
@@ -63,6 +65,16 @@ function App() {
         <Route
           path="/barangay/certificates"
           element={<Certificates />}
+        />
+
+        <Route
+          path="/barangay/certificates/new/:certificateType"
+          element={<CertificateResidentSelect />}
+        />
+
+        <Route
+          path="/barangay/certificates/new/:certificateType/:residentId"
+          element={<CertificateGeneration />}
         />
 
         <Route

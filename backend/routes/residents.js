@@ -30,14 +30,11 @@ router.post(
         .insert([
           {
             ...body,
-            salary: body.salary ? Number(body.salary) : null,
             pfp_url,
             live_birth_url,
             baptismal_url,
           },
-        ])
-        .select()
-        .single();
+        ]);
 
       if (error) {
         return res.status(400).json({
@@ -89,16 +86,46 @@ router.get("/:id", async (req, res) => {
 
     const { data, error } = await supabase
       .from("residents")
-      .select("*")
+      .select(`
+        *,
+        barangays (
+          barangay_name,
+          municipality,
+          province,
+          country,
+          zip_code
+        )
+      `)
       .eq("resident_id", id)
       .single();
 
     if (error) throw error;
 
+    // ADD THIS HERE
+    const resident = {
+      ...data,
+      barangay_name:
+        data.barangays?.barangay_name,
+
+      municipality:
+        data.barangays?.municipality,
+
+      province:
+        data.barangays?.province,
+      
+      country:
+        data.barangays?.country,
+
+      zip_code:
+        data.barangays?.zip_code,
+    };
+
+    // CHANGE THIS
     res.json({
       success: true,
-      resident: data,
+      resident,
     });
+
   } catch (err) {
     res.status(500).json({
       success: false,

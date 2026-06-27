@@ -62,45 +62,67 @@ export default function Residents() {
 
       <div className="toolbar">
 
-        <input
-          type="text"
-          placeholder="Search resident..."
-          className="search-input"
-        />
+        <div className="toolbar-left">
+          <input
+            type="text"
+            placeholder="Search resident..."
+            className="search-input"
+          />
 
-        <select
-          value={rowsPerPage}
-          onChange={(e) => {
-            setRowsPerPage(Number(e.target.value));
-            setCurrentPage(1);
-          }}
-        >
-          <option value={10}>10 rows</option>
-          <option value={25}>25 rows</option>
-          <option value={50}>50 rows</option>
-        </select>
-
-      </div>
-
-      <div className="stats-row">
-
-        <div className="stat-card">
-          <span>Total Residents</span>
-          <h2>{residents.length}</h2>
+          <select
+            value={rowsPerPage}
+            onChange={(e) => {
+              setRowsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+          >
+            <option value={10}>10 rows</option>
+            <option value={25}>25 rows</option>
+            <option value={50}>50 rows</option>
+          </select>
         </div>
 
-        <div className="stat-card">
-          <span>Senior Citizens</span>
-          <h2>
-            {residents.filter(r => r.senior_citizen).length}
-          </h2>
-        </div>
+        <div className="stats-inline">
 
-        <div className="stat-card">
-          <span>4Ps Beneficiaries</span>
-          <h2>
-            {residents.filter(r => r.fourps_beneficiary).length}
-          </h2>
+          <div className="mini-stat">
+            <span>Residents</span>
+            <strong>{residents.length}</strong>
+          </div>
+
+          <div className="mini-stat">
+            <span>Voters</span>
+            <strong>
+              {residents.filter(r => r.voter).length}
+            </strong>
+          </div>
+
+          <div className="mini-stat">
+            <span>Seniors</span>
+            <strong>
+              {residents.filter(r => r.senior_citizen).length}
+            </strong>
+          </div>
+
+          <div className="mini-stat">
+            <span>4Ps</span>
+            <strong>
+              {residents.filter(r => r.fourps_beneficiary).length}
+            </strong>
+          </div>
+
+          <div className="mini-stat">
+            <span>Students</span>
+            <strong>
+              {
+                residents.filter(
+                  r =>
+                    r.currently_enrolled === true ||
+                    r.currently_enrolled === "true"
+                ).length
+              }
+            </strong>
+          </div>
+
         </div>
 
       </div>
