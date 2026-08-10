@@ -5,6 +5,26 @@ This repository is prepared for a two-service Render deployment:
 - `barangay-profiling-api`: Node web service from `backend`
 - `barangay-profiling-frontend`: static Vite React site from `frontend`
 
+## If Render Says Root `package.json` Is Missing
+
+That means the service was created at the repository root instead of using the
+`frontend` or `backend` root directory.
+
+The repo now includes a root `package.json` so this common Render setup works:
+
+```text
+Build Command: npm install && npm run build
+Publish Directory: dist
+```
+
+For a cleaner two-service setup, use the included `render.yaml` Blueprint or set
+the service root directories manually:
+
+```text
+API Root Directory: backend
+Frontend Root Directory: frontend
+```
+
 ## Backend Environment Variables
 
 Set these on `barangay-profiling-api`:
