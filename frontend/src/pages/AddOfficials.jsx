@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from "../lib/api";
 import "../styles/addOfficial.css";
 
 export default function AddOfficial() {
@@ -38,7 +39,7 @@ export default function AddOfficial() {
   async function fetchResidents() {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/residents"
+        apiUrl("/api/residents")
       );
 
       const data = await res.json();
@@ -85,7 +86,7 @@ export default function AddOfficial() {
         }
 
         const response = await fetch(
-        "http://localhost:5000/api/officials",
+        apiUrl("/api/officials"),
         {
             method: "POST",
             body: formData,

@@ -8,6 +8,7 @@ import {
   FiRefreshCw,
   FiUsers,
 } from "react-icons/fi";
+import { apiUrl } from "../lib/api";
 import "../styles/global.css";
 import "../styles/barangay_dashboard.css";
 
@@ -84,8 +85,8 @@ export default function BarangayDashboard() {
 
   async function requestDashboardData() {
     const [residentsRes, officialsRes] = await Promise.all([
-      fetch("http://localhost:5000/api/residents"),
-      fetch("http://localhost:5000/api/officials"),
+      fetch(apiUrl("/api/residents")),
+      fetch(apiUrl("/api/officials")),
     ]);
 
     const residentsData = await residentsRes.json();

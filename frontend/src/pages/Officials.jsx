@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from "../lib/api";
 import "../styles/officials.css";
 
 export default function Officials() {
@@ -20,7 +21,7 @@ export default function Officials() {
   async function fetchOfficials() {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/officials"
+        apiUrl("/api/officials")
       );
 
       const data = await res.json();

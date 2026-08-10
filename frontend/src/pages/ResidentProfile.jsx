@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { apiUrl } from "../lib/api";
 import "../styles/residentProfile.css";
 
 export default function ResidentProfile() {
@@ -17,7 +18,7 @@ export default function ResidentProfile() {
   async function fetchResident() {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/residents/${residentId}`
+        apiUrl(`/api/residents/${residentId}`)
       );
 
       const data = await res.json();
@@ -44,7 +45,7 @@ export default function ResidentProfile() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/residents/${residentId}`,
+        apiUrl(`/api/residents/${residentId}`),
         {
           method: "DELETE",
         }

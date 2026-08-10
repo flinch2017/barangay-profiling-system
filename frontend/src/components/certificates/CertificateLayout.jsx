@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import ResidentSummary from "./ResidentSummary";
 import CertificatePreview from "./CertificatePreview";
+import { apiUrl } from "../../lib/api";
 
 function formatTitle(value) {
   return value
@@ -91,9 +92,9 @@ export default function CertificateLayout({
 
         const [residentRes, officialsRes] = await Promise.all([
           fetch(
-            `http://localhost:5000/api/residents/${residentId}`
+            apiUrl(`/api/residents/${residentId}`)
           ),
-          fetch("http://localhost:5000/api/officials"),
+          fetch(apiUrl("/api/officials")),
         ]);
 
         const residentData = await residentRes.json();

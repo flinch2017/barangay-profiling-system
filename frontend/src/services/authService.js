@@ -1,11 +1,12 @@
 import axios from "axios";
+import { apiUrl } from "../lib/api";
 
 export const loginUser = async (
   username,
   password
 ) => {
   const response = await axios.post(
-    "http://localhost:5000/api/auth/login",
+    apiUrl("/api/auth/login"),
     {
       username,
       password
@@ -23,7 +24,7 @@ export const signupBarangayAdmin = async (
   role
 ) => {
   const response = await axios.post(
-    "http://localhost:5000/api/auth/signup/barangay-admin",
+    apiUrl("/api/auth/signup/barangay-admin"),
     {
       username,
       email,

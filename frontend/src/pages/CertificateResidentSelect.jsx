@@ -7,6 +7,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 
+import { apiUrl } from "../lib/api";
 import "../styles/certificateResidentSelect.css";
 
 export default function CertificateResidentSelect() {
@@ -24,7 +25,7 @@ export default function CertificateResidentSelect() {
       try {
 
         const res = await fetch(
-          "http://localhost:5000/api/residents"
+          apiUrl("/api/residents")
         );
 
         const data = await res.json();

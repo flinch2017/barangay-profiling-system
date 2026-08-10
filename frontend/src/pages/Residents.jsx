@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from "../lib/api";
 import "../styles/residents.css";
 
 export default function Residents() {
@@ -30,7 +31,7 @@ export default function Residents() {
 
   async function fetchResidents() {
     try {
-      const res = await fetch("http://localhost:5000/api/residents");
+      const res = await fetch(apiUrl("/api/residents"));
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.message);

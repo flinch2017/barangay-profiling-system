@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { apiUrl } from "../lib/api";
 
 import "../styles/addResident.css";
 
@@ -87,7 +88,7 @@ export default function AddResident() {
       if (files.baptismal) formData.append("baptismal", files.baptismal);
 
       const response = await fetch(
-        "http://localhost:5000/api/residents",
+        apiUrl("/api/residents"),
         {
           method: "POST",
           body: formData, // IMPORTANT: no JSON headers
