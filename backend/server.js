@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import "./config/env.js";
-
 import express from "express";
 import cors from "cors";
 
@@ -12,15 +11,20 @@ import officialsRoutes from "./routes/officials.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
+
 const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
-  : true;
+  ? process.env.CORS_ORIGIN
+      .split(",")
+      .map((origin) => origin.trim())
+  : ["http://localhost:5173"];
 
 app.use(
   cors({
     origin: allowedOrigins,
+    credentials: true,
   })
 );
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
