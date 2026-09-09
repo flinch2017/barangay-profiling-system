@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { apiUrl } from "../lib/api";
 
@@ -7,10 +7,14 @@ import "../styles/addResident.css";
 
 export default function AddResident() {
   const navigate = useNavigate();
+  const { residentId } = useParams();
+  const isEditing = Boolean(residentId);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [saving, setSaving] = useState(false);
+  const [loadingResident, setLoadingResident] = useState(isEditing);
+  const [loadError, setLoadError] = useState("");
 
   const [form, setForm] = useState({
     first_name: "",
@@ -45,6 +49,33 @@ export default function AddResident() {
     baptismal: null,
   });
 
+  useEffect(() => {
+    if (!isEditing) return;
+
+    async function loadResident() {
+      try {
+        const response = await fetch(apiUrl(`/api/residents/${residentId}`));
+        const result = await response.json();
+
+        if (!response.ok) throw new Error(result.message || "Unable to load resident");
+
+        setForm((currentForm) => {
+          const nextForm = { ...currentForm };
+          Object.keys(currentForm).forEach((key) => {
+            nextForm[key] = result.resident[key] ?? currentForm[key];
+          });
+          return nextForm;
+        });
+      } catch (error) {
+        setLoadError(error.message || "Unable to load resident");
+      } finally {
+        setLoadingResident(false);
+      }
+    }
+
+    loadResident();
+  }, [isEditing, residentId]);
+
   function handleFileChange(e) {
     const { name, files: fileList } = e.target;
 
@@ -78,7 +109,9 @@ export default function AddResident() {
         formData.append(key, form[key]);
       });
 
-      formData.append("barangay_id", user.barangayId);
+      if (!isEditing) {
+        formData.append("barangay_id", user.barangayId);
+      }
 
       
 
@@ -88,9 +121,9 @@ export default function AddResident() {
       if (files.baptismal) formData.append("baptismal", files.baptismal);
 
       const response = await fetch(
-        apiUrl("/api/residents"),
+        apiUrl(isEditing ? `/api/residents/${residentId}` : "/api/residents"),
         {
-          method: "POST",
+          method: isEditing ? "PUT" : "POST",
           body: formData, // IMPORTANT: no JSON headers
         }
       );
@@ -101,7 +134,7 @@ export default function AddResident() {
         throw new Error(result.message);
       }
 
-      alert("Resident added successfully!");
+      alert(isEditing ? "Resident updated successfully!" : "Resident added successfully!");
 
       navigate("/barangay/residents");
 
@@ -113,11 +146,25 @@ export default function AddResident() {
     }
   }
 
+  if (loadingResident) return <p>Loading resident...</p>;
+
+  if (loadError) {
+    return (
+      <div className="add-resident-page">
+        <div className="page-header">
+          <h1>Unable to load resident</h1>
+          <button className="back-btn" onClick={() => navigate("/barangay/residents")}>← Back</button>
+        </div>
+        <p>{loadError}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="add-resident-page">
 
       <div className="page-header">
-        <h1>Add New Resident</h1>
+        <h1>{isEditing ? "Edit Resident" : "Add New Resident"}</h1>
 
         <button
           className="back-btn"
@@ -614,7 +661,7 @@ export default function AddResident() {
             className="submit-btn"
             disabled={saving}
           >
-            {saving ? "Saving..." : "Save Resident"}
+            {saving ? "Saving..." : isEditing ? "Save Changes" : "Save Resident"}
           </button>
         </div>
 

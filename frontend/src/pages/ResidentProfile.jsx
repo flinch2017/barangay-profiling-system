@@ -10,6 +10,8 @@ export default function ResidentProfile() {
 
   const [resident, setResident] = useState(null);
   const [loading, setLoading] = useState(true);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isResidentViewingOwnProfile = user.role === "resident" && user.residentId === residentId;
 
   useEffect(() => {
     fetchResident();
@@ -86,7 +88,7 @@ export default function ResidentProfile() {
           </h1>
         </div>
 
-        <div className="header-actions">
+        {!isResidentViewingOwnProfile && <div className="header-actions">
 
           <button
             className="icon-btn edit-btn"
@@ -110,7 +112,7 @@ export default function ResidentProfile() {
             <FiTrash2 />
           </button>
 
-        </div>
+        </div>}
 
       </div>
 

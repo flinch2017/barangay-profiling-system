@@ -8,6 +8,7 @@ const createAuthResponse = (user) => {
       userId: user.user_id,
       role: user.role,
       barangayId: user.barangay_id
+      ,residentId: user.resident_id
     },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
@@ -21,6 +22,7 @@ const createAuthResponse = (user) => {
       email: user.email,
       role: user.role,
       barangayId: user.barangay_id
+      ,residentId: user.resident_id
     }
   };
 };

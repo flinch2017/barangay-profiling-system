@@ -26,7 +26,9 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      if (data.user.role === "system_admin") {
+      if (data.user.role === "resident") {
+        navigate("/resident/portal");
+      } else if (data.user.role === "system_admin") {
         navigate("/system/dashboard");
       } else {
         navigate("/barangay/dashboard");

@@ -1,82 +1,27 @@
-/* PAGE WRAPPER */
-.signup-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f5f9;
-  padding: 20px;
-}
-
-/* CARD */
-.signup-card {
-  width: 100%;
-  max-width: 520px;
-}
-
-/* TITLE */
-.signup-title {
-  font-size: 24px;
-  color: var(--primary);
-  margin-bottom: 6px;
-}
-
-.signup-subtitle {
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 20px;
-}
-
-/* FORM */
-.signup-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* GROUP */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* ERROR ALERT */
-.alert-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 10px 12px;
-  border-radius: var(--radius);
-  font-size: 13px;
-  margin-bottom: 15px;
-}
-
-/* BUTTON */
-.signup-btn {
-  margin-top: 10px;
-  width: 100%;
-}
-
-/* FOOTER */
-.signup-footer {
-  margin-top: 18px;
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.link {
-  color: var(--primary);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
+.signup-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f1f5f9; padding: 20px; }
+.signup-card, .signup-choice-card { width: 100%; max-width: 520px; }
+.signup-choice-card { max-width: 620px; padding: 32px; }
+.signup-title { font-size: 24px; color: var(--primary); margin-bottom: 6px; }
+.signup-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.signup-eyebrow { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .1em; margin-bottom: 8px; }
+.signup-options { display: grid; gap: 12px; }
+.signup-option { align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 12px; color: var(--text); cursor: pointer; display: flex; gap: 14px; padding: 18px; text-align: left; transition: border-color .2s, box-shadow .2s, transform .2s; width: 100%; }
+.signup-option:hover, .signup-option:focus-visible { border-color: var(--accent); box-shadow: 0 8px 20px rgba(37, 99, 235, .12); outline: none; transform: translateY(-1px); }
+.signup-option-icon { align-items: center; background: #eff6ff; border-radius: 10px; color: var(--accent); display: flex; font-size: 24px; font-weight: 700; height: 44px; justify-content: center; width: 44px; }
+.signup-option-content { display: grid; flex: 1; gap: 4px; }
+.signup-option-content strong { font-size: 15px; }
+.signup-option-content span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.signup-option-arrow { color: var(--muted); font-size: 20px; }
+.back-to-options, .text-button { background: transparent; border: 0; color: var(--primary); cursor: pointer; font: inherit; font-size: 12px; font-weight: 600; padding: 0; }
+.back-to-options { margin-bottom: 20px; }
+.back-to-options:hover, .text-button:hover { color: var(--accent); text-decoration: underline; }
+.signup-form { display: flex; flex-direction: column; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12px; color: var(--muted); }
+.alert-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 10px 12px; border-radius: var(--radius); font-size: 13px; margin-bottom: 15px; }
+.signup-btn { margin-top: 10px; width: 100%; }
+.signup-footer { margin-top: 18px; text-align: center; font-size: 12px; color: var(--muted); }
+.link { color: var(--primary); font-weight: 600; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+.claim-notice { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius); color: #1e3a8a; display: grid; font-size: 13px; gap: 8px; line-height: 1.5; padding: 16px; }
+@media (max-width: 480px) { .signup-choice-card { padding: 22px; } .signup-option { align-items: flex-start; padding: 14px; } .signup-option-icon { flex: 0 0 40px; height: 40px; width: 40px; } }

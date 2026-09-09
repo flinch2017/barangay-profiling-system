@@ -145,8 +145,10 @@
 .table-card{
   background:white;
   border-radius:12px;
-  overflow:hidden;
+  overflow-x:auto;
+  overflow-y:hidden;
   border:1px solid #e2e8f0;
+  -webkit-overflow-scrolling:touch;
 }
 
 .certificates-table{
@@ -482,6 +484,10 @@
   .certificate-paper{
     min-height:auto;
     padding:36px 24px;
+  }
+
+  .certificates-table{
+    min-width:700px;
   }
 }
 

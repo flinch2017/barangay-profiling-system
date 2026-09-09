@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import "../styles/global.css";
 
@@ -10,7 +10,10 @@ export default function DashboardLayout() {
   const [profile, setProfile] = useState(() =>
     JSON.parse(localStorage.getItem("barangayProfile") || "{}")
   );
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef(null);
   const logoUrl = profile.logoDataUrl || user?.pfp_url;
+  const isResident = user?.role === "resident";
 
   useEffect(() => {
     function syncProfile() {
@@ -27,39 +30,65 @@ export default function DashboardLayout() {
     };
   }, []);
 
+  useEffect(() => {
+    function closeAccountMenu(event) {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+        setIsAccountMenuOpen(false);
+      }
+    }
+
+    function closeOnEscape(event) {
+      if (event.key === "Escape") setIsAccountMenuOpen(false);
+    }
+
+    document.addEventListener("mousedown", closeAccountMenu);
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", closeAccountMenu);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setIsAccountMenuOpen(false);
     navigate("/");
   }
 
   return (
-    <div className="dashboard-layout">
+    <div className="app-shell">
 
-      <aside className="sidebar">
-
-        {/* TOP SECTION */}
-        <div>
-          <div className="sidebar-header">
-            <h2>Barangay System</h2>
-            <p>{user?.username}</p>
-          </div>
-
-          <nav className="sidebar-nav">
-            <NavLink to="/barangay/dashboard">Dashboard</NavLink>
-            <NavLink to="/barangay/residents">Residents</NavLink>
-            <NavLink to="/barangay/certificates">Certificates</NavLink>
-            <NavLink to="/barangay/officials">Officials</NavLink>
-            <NavLink to="/barangay/settings">Admin Profile</NavLink>
-          </nav>
+      <header className="top-nav">
+        <div className="top-nav-brand">
+          <span className="top-nav-brand-mark" aria-hidden="true">B</span>
+          <h2>Barangay System</h2>
         </div>
 
-        {/* BOTTOM USER SECTION */}
-        <div className="sidebar-user">
+        <nav className="top-nav-links" aria-label="Main navigation">
+          {isResident ? (
+            <NavLink to="/resident/portal">My Portal</NavLink>
+          ) : (
+            <>
+              <NavLink to="/barangay/dashboard">Dashboard</NavLink>
+              <NavLink to="/barangay/residents">Residents</NavLink>
+              <NavLink to="/barangay/certificates">Certificates</NavLink>
+              <NavLink to="/barangay/officials">Officials</NavLink>
+              <NavLink to="/barangay/claim-requests">Claim Requests</NavLink>
+              <NavLink to="/barangay/settings">Admin Profile</NavLink>
+            </>
+          )}
+        </nav>
+
+        <div className="top-nav-user" ref={accountMenuRef}>
           <button
-            className="user-btn"
-            onClick={() => navigate("/barangay/settings")}
+            className="top-nav-user-btn"
+            onClick={() => setIsAccountMenuOpen((isOpen) => !isOpen)}
             type="button"
+            aria-label="Open account menu"
+            aria-expanded={isAccountMenuOpen}
+            aria-haspopup="menu"
           >
             <div className="avatar">
               {logoUrl ? (
@@ -68,25 +97,30 @@ export default function DashboardLayout() {
                 user?.username?.charAt(0).toUpperCase()
               )}
             </div>
+          </button>
 
-            <div className="user-info">
-              <p className="name">{user?.username}</p>
-              <small>Signed in</small>
+          {isAccountMenuOpen && (
+            <div className="account-dropdown" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setIsAccountMenuOpen(false);
+                  navigate(isResident ? "/resident/portal" : "/barangay/settings");
+                }}
+              >
+                Profile
+              </button>
+              <button type="button" role="menuitem" className="account-dropdown-logout" onClick={handleLogout}>
+                Logout
+              </button>
             </div>
-          </button>
-
-          <button
-            className="sidebar-logout-btn"
-            onClick={handleLogout}
-            type="button"
-          >
-            Logout
-          </button>
+          )}
         </div>
 
-      </aside>
+      </header>
 
-      <main className="dashboard-main">
+      <main className="dashboard-content">
         <Outlet />
       </main>
 

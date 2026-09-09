@@ -80,6 +80,45 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.put(
+  "/:id",
+  upload.fields([
+    { name: "pfp", maxCount: 1 },
+    { name: "live_birth", maxCount: 1 },
+    { name: "baptismal", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = { ...req.body };
+
+      const pfpFile = req.files?.pfp?.[0];
+      const birthFile = req.files?.live_birth?.[0];
+      const baptismFile = req.files?.baptismal?.[0];
+
+      if (pfpFile) updateData.pfp_url = await uploadToR2(pfpFile);
+      if (birthFile) updateData.live_birth_url = await uploadToR2(birthFile);
+      if (baptismFile) updateData.baptismal_url = await uploadToR2(baptismFile);
+
+      const { data, error } = await supabase
+        .from("residents")
+        .update(updateData)
+        .eq("resident_id", id)
+        .select("*")
+        .single();
+
+      if (error) {
+        return res.status(400).json({ success: false, message: error.message });
+      }
+
+      return res.json({ success: true, resident: data });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
+);
+
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;

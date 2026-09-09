@@ -18,6 +18,8 @@ import AddResident from "./pages/AddResident";
 import AddOfficial from "./pages/AddOfficials";
 import CertificateResidentSelect from "./pages/CertificateResidentSelect";
 import CertificateGeneration from "./pages/CertificateGeneration";
+import ClaimRequests from "./pages/ClaimRequests";
+import ResidentPortal from "./pages/ResidentPortal";
 
 
 function App() {
@@ -63,6 +65,11 @@ function App() {
         />  
 
         <Route
+          path="/barangay/residents/:residentId/edit"
+          element={<AddResident />}
+        />
+
+        <Route
           path="/barangay/certificates"
           element={<Certificates />}
         />
@@ -96,6 +103,9 @@ function App() {
           path="/barangay/settings"
           element={<Settings />}
         />
+
+        <Route path="/barangay/claim-requests" element={<ClaimRequests />} />
+        <Route path="/resident/portal" element={<ResidentPortal />} />
 
       </Route>
 

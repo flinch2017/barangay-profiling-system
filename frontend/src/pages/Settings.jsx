@@ -142,7 +142,7 @@ export default function Settings() {
           <span>Administration</span>
           <h1>Admin Profile</h1>
           <p>
-            Set the barangay logo once and it will appear on the sidebar profile
+            Set the barangay logo once and it will appear in the header profile
             and the certificate letterhead.
           </p>
         </div>

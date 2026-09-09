@@ -232,3 +232,160 @@ p {
 .sidebar-logout-btn:hover {
   background: rgba(127, 29, 29, 0.36);
 }
+
+/* =========================
+   DASHBOARD HEADER NAVIGATION
+========================= */
+.app-shell {
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.top-nav {
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  color: white;
+  display: flex;
+  gap: 20px;
+  min-height: 68px;
+  padding: 10px 28px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.top-nav-brand { align-items: center; color: #0f172a; display: flex; flex: 0 0 auto; gap: 9px; }
+.top-nav-brand-mark { align-items: center; background: #0f172a; border-radius: 8px; color: #fff; display: inline-flex; font-size: 14px; font-weight: 800; height: 30px; justify-content: center; width: 30px; }
+.top-nav-brand h2 { font-size: 16px; letter-spacing: -.01em; }
+
+.top-nav-links {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  gap: 2px;
+  justify-content: center;
+  padding: 3px;
+}
+
+.top-nav-links a {
+  border-radius: 8px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 11px;
+  text-decoration: none;
+  transition: .2s;
+  white-space: nowrap;
+}
+
+.top-nav-links a:hover,
+.top-nav-links a.active {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .12);
+  color: #0f172a;
+}
+
+.top-nav-user {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  position: relative;
+}
+
+.top-nav-user-btn {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  padding: 4px;
+  text-align: left;
+}
+
+.top-nav-user-btn { border-radius: 50%; }
+.top-nav-user-btn:hover { background: #f1f5f9; }
+.top-nav-user-btn .avatar { height: 32px; width: 32px; }
+
+.account-dropdown {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+  display: grid;
+  gap: 3px;
+  min-width: 150px;
+  padding: 6px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 30;
+}
+
+.account-dropdown button {
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  color: #334155;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.account-dropdown button:hover { background: #f1f5f9; }
+.account-dropdown .account-dropdown-logout { color: #b91c1c; }
+.account-dropdown .account-dropdown-logout:hover { background: #fef2f2; }
+
+.top-nav-logout-btn {
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+.top-nav-logout-btn:hover { background: #fef2f2; }
+.dashboard-content { padding: 24px; }
+
+@media (max-width: 900px) {
+  .top-nav {
+    display: grid;
+    gap: 10px 16px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-bottom: 0;
+  }
+
+  .top-nav-brand { grid-column: 1; grid-row: 1; }
+  .top-nav-user { grid-column: 2; grid-row: 1; }
+
+  .top-nav-links {
+    border: 0;
+    border-radius: 0;
+    border-top: 1px solid #e2e8f0;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+    margin: 0 -28px;
+    overflow-x: auto;
+    padding: 10px 28px;
+    width: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .top-nav { padding: 10px 16px 0; }
+  .top-nav-user-btn .user-info { display: none; }
+  .top-nav-links a { font-size: 13px; padding: 8px; }
+  .top-nav-links { margin: 0 -16px; padding: 10px 16px; }
+  .dashboard-content { padding: 16px; }
+}
