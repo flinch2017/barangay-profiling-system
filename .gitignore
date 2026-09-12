@@ -9,3 +9,4 @@ frontend/dist/
 backend/.env
 frontend/.env
 npm-debug.log*
+.agents/
