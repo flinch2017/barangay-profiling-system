@@ -100,7 +100,7 @@ export default function DashboardLayout() {
               <NavLink to="/barangay/certificates">Certificates</NavLink>
               <NavLink to="/barangay/officials">Officials</NavLink>
               <NavLink to="/barangay/claim-requests">Claim Requests</NavLink>
-              <NavLink to="/barangay/settings">Admin Profile</NavLink>
+              <NavLink to="/barangay/customization">Customization</NavLink>
             </>
           )}
         </nav>
@@ -130,10 +130,20 @@ export default function DashboardLayout() {
                 role="menuitem"
                 onClick={() => {
                   setIsAccountMenuOpen(false);
-                  navigate(isResident ? "/resident/portal" : "/barangay/settings");
+                  navigate(isResident ? "/resident/portal" : "/settings");
                 }}
               >
                 Profile
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setIsAccountMenuOpen(false);
+                  navigate("/settings");
+                }}
+              >
+                Settings
               </button>
               <button type="button" role="menuitem" className="account-dropdown-logout" onClick={handleLogout}>
                 Logout

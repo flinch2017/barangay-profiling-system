@@ -1,7 +1,8 @@
 import express from "express";
 import {
   login,
-  signupBarangayAdmin
+  signupBarangayAdmin,
+  updateAccountProfile
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -11,5 +12,6 @@ router.post(
   "/signup/barangay-admin",
   signupBarangayAdmin
 );
+router.put("/profile", ...updateAccountProfile);
 
 export default router;

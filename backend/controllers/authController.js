@@ -1,6 +1,18 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { supabase } from "../config/supabase.js";
+import { verifyToken } from "../middleware/authMiddleware.js";
+
+const usernamePattern = /^[a-zA-Z][a-zA-Z0-9_.]{2,29}$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8}$/;
+
+function validateAccountDetails({ username, email, password }) {
+  if (username && !usernamePattern.test(username.trim())) return "Username must be 3–30 characters and use letters, numbers, periods, or underscores only.";
+  if (email && !emailPattern.test(email.trim().toLowerCase())) return "Enter a valid email address.";
+  if (password && !passwordPattern.test(password)) return "Password must be exactly 8 characters and include uppercase, lowercase, number, and special character.";
+  return "";
+}
 
 export const createAuthResponse = (user) => {
   const token = jwt.sign(
@@ -8,7 +20,8 @@ export const createAuthResponse = (user) => {
       userId: user.user_id,
       role: user.role,
       barangayId: user.barangay_id
-      ,residentId: user.resident_id
+      ,residentId: user.resident_id,
+      updatedAt: user.updated_at
     },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
@@ -102,10 +115,11 @@ export const signupBarangayAdmin = async (req, res) => {
       });
     }
 
-    if (password.length < 6) {
+    const validationError = validateAccountDetails({ username, email, password });
+    if (validationError) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters"
+        message: validationError
       });
     }
 
@@ -121,13 +135,6 @@ export const signupBarangayAdmin = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Username, email, and barangay ID cannot be blank"
-      });
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      return res.status(400).json({
-        success: false,
-        message: "Enter a valid email address"
       });
     }
 
@@ -211,3 +218,24 @@ export const signupBarangayAdmin = async (req, res) => {
     });
   }
 };
+
+export const updateAccountProfile = [verifyToken, async (req, res) => {
+  try {
+    const { username, email, currentPassword, newPassword } = req.body;
+    if (!username || !email) return res.status(400).json({ message: "Username and email are required" });
+    const validationError = validateAccountDetails({ username, email, password: newPassword || undefined });
+    if (validationError) return res.status(400).json({ message: validationError });
+    if (newPassword && !currentPassword) return res.status(400).json({ message: "Enter your current password to change it" });
+    const { data: currentUser, error } = await supabase.from("users").select("*").eq("user_id", req.user.userId).single();
+    if (error) throw error;
+    if (newPassword && !(await bcrypt.compare(currentPassword, currentUser.password_hash))) return res.status(401).json({ message: "Current password is incorrect" });
+    const trimmedUsername = username.trim(); const trimmedEmail = email.trim().toLowerCase();
+    const { data: duplicate } = await supabase.from("users").select("user_id").or(`username.eq.${trimmedUsername},email.eq.${trimmedEmail}`).neq("user_id", currentUser.user_id).maybeSingle();
+    if (duplicate) return res.status(409).json({ message: "Username or email is already in use" });
+    const update = { username: trimmedUsername, email: trimmedEmail, updated_at: new Date().toISOString() };
+    if (newPassword) update.password_hash = await bcrypt.hash(newPassword, 10);
+    const { data: updatedUser, error: updateError } = await supabase.from("users").update(update).eq("user_id", currentUser.user_id).select("*").single();
+    if (updateError) throw updateError;
+    return res.json({ success: true, ...createAuthResponse(updatedUser), message: "Account profile updated" });
+  } catch (error) { console.error(error); return res.status(500).json({ message: `Unable to update account profile: ${error.message}` }); }
+}];

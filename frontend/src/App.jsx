@@ -23,6 +23,7 @@ import ResidentPortal from "./pages/ResidentPortal";
 import ClaimResidentProfile from "./pages/ClaimResidentProfile";
 import ResidentNotifications from "./pages/ResidentNotifications";
 import OfficialProfile from "./pages/OfficialProfile";
+import Customization from "./pages/Customization";
 
 
 function App() {
@@ -104,10 +105,8 @@ function App() {
 
         <Route path="/barangay/officials/:officialId/edit" element={<AddOfficial />} />
 
-        <Route
-          path="/barangay/settings"
-          element={<Settings />}
-        />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/barangay/customization" element={<Customization />} />
 
         <Route path="/barangay/claim-requests" element={<ClaimRequests />} />
         <Route path="/resident/portal" element={<ResidentPortal />} />
