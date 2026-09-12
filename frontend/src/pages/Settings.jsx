@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiCheckCircle,
@@ -10,6 +10,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import bagongPilipinasLogo from "../assets/Bagong_Pilipinas_Logo.png";
+import { apiUrl } from "../lib/api";
 import "../styles/settings.css";
 
 const PROFILE_STORAGE_KEY = "barangayProfile";
@@ -47,9 +48,28 @@ export default function Settings() {
   const user = useMemo(() => getStoredUser(), []);
   const [profile, setProfile] = useState(() => getStoredProfile());
   const [logoPreview, setLogoPreview] = useState(profile.logoDataUrl || "");
+  const [logoFile, setLogoFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    async function loadSharedProfile() {
+      try {
+        const response = await fetch(apiUrl("/api/barangays/profile"), {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+        if (response.ok && data.profile?.logo_url) {
+          setLogoPreview(data.profile.logo_url);
+          setProfile((current) => ({ ...current, logoName: "Saved barangay logo", logoDataUrl: data.profile.logo_url }));
+        }
+      } catch {
+        // Preserve a local preview when the backend is temporarily unavailable.
+      }
+    }
+    loadSharedProfile();
+  }, []);
 
   function applyLogoFile(file) {
     if (!file) {
@@ -66,22 +86,11 @@ export default function Settings() {
       return;
     }
 
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const logoDataUrl = reader.result;
-
-      setLogoPreview(logoDataUrl);
-      setProfile((prev) => ({
-        ...prev,
-        logoName: file.name,
-        logoDataUrl,
-      }));
-      setIsDirty(true);
-      setMessage("Logo selected. Save profile to apply it everywhere.");
-    };
-
-    reader.readAsDataURL(file);
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+    setProfile((prev) => ({ ...prev, logoName: file.name }));
+    setIsDirty(true);
+    setMessage("Logo selected. Save profile to share it across devices.");
   }
 
   function handleLogoChange(e) {
@@ -91,6 +100,7 @@ export default function Settings() {
 
   function handleRemoveLogo() {
     setLogoPreview("");
+    setLogoFile(null);
     setProfile((prev) => ({
       ...prev,
       logoName: "",
@@ -100,27 +110,25 @@ export default function Settings() {
     setMessage("Logo removed. Save profile to apply the change.");
   }
 
-  function handleSave() {
+  async function handleSave() {
     setSaving(true);
-
-    const nextProfile = {
-      ...profile,
-      logoDataUrl: logoPreview,
-      updatedAt: new Date().toISOString(),
-    };
-    const nextUser = {
-      ...user,
-      pfp_url: logoPreview || "",
-    };
-
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
-    localStorage.setItem("user", JSON.stringify(nextUser));
-    window.dispatchEvent(new Event("barangay-profile-updated"));
-
-    setProfile(nextProfile);
-    setIsDirty(false);
-    setSaving(false);
-    setMessage("Admin profile saved. Certificates will use the updated logo.");
+    try {
+      const body = new FormData();
+      if (logoFile) body.append("logo", logoFile);
+      if (!logoPreview) body.append("removeLogo", "true");
+      const response = await fetch(apiUrl("/api/barangays/profile"), { method: "PUT", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, body });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      const sharedLogo = data.profile.logo_url || "";
+      const nextProfile = { ...profile, logoDataUrl: sharedLogo, updatedAt: new Date().toISOString() };
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
+      localStorage.setItem("user", JSON.stringify({ ...user, pfp_url: sharedLogo }));
+      setProfile(nextProfile); setLogoPreview(sharedLogo); setLogoFile(null); setIsDirty(false);
+      window.dispatchEvent(new Event("barangay-profile-updated"));
+      setMessage("Barangay logo saved and shared across devices.");
+    } catch (error) {
+      setMessage(error.message || "Unable to save barangay logo.");
+    } finally { setSaving(false); }
   }
 
   function handleLogout() {

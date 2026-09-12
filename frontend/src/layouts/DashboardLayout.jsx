@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { apiUrl } from "../lib/api";
 import "../styles/global.css";
 
 export default function DashboardLayout() {
@@ -29,6 +30,25 @@ export default function DashboardLayout() {
       window.removeEventListener("storage", syncProfile);
     };
   }, []);
+
+  useEffect(() => {
+    if (isResident) return;
+    async function loadSharedBarangayLogo() {
+      try {
+        const response = await fetch(apiUrl("/api/barangays/profile"), {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+        if (!response.ok || !data.profile?.logo_url) return;
+        const nextProfile = { ...JSON.parse(localStorage.getItem("barangayProfile") || "{}"), logoDataUrl: data.profile.logo_url };
+        localStorage.setItem("barangayProfile", JSON.stringify(nextProfile));
+        setProfile(nextProfile);
+      } catch {
+        // The header can still use a cached logo while offline.
+      }
+    }
+    loadSharedBarangayLogo();
+  }, [isResident]);
 
   useEffect(() => {
     function closeAccountMenu(event) {
