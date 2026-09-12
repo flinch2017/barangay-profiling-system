@@ -12,8 +12,8 @@ export default function DashboardLayout() {
   );
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef(null);
-  const logoUrl = profile.logoDataUrl || user?.pfp_url;
   const isResident = user?.role === "resident";
+  const logoUrl = isResident ? user?.pfp_url : profile.logoDataUrl || user?.pfp_url;
 
   useEffect(() => {
     function syncProfile() {
@@ -63,12 +63,16 @@ export default function DashboardLayout() {
       <header className="top-nav">
         <div className="top-nav-brand">
           <span className="top-nav-brand-mark" aria-hidden="true">B</span>
-          <h2>Barangay System</h2>
+          <h2>BPS</h2>
         </div>
 
         <nav className="top-nav-links" aria-label="Main navigation">
           {isResident ? (
-            <NavLink to="/resident/portal">My Portal</NavLink>
+            <>
+              <NavLink to="/resident/portal">My Portal</NavLink>
+              {!user.residentId && <NavLink to="/resident/claim-profile">Claim Profile</NavLink>}
+              <NavLink to="/resident/notifications">Notifications</NavLink>
+            </>
           ) : (
             <>
               <NavLink to="/barangay/dashboard">Dashboard</NavLink>

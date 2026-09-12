@@ -114,4 +114,47 @@ router.post(
   }
 );
 
+router.get("/:id", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("officials")
+      .select("*, residents(*)")
+      .eq("official_id", req.params.id)
+      .single();
+    if (error) throw error;
+    return res.json({ success: true, official: { ...data, ...data.residents, resident: data.residents } });
+  } catch (error) {
+    return res.status(404).json({ success: false, message: error.message || "Official not found" });
+  }
+});
+
+router.put("/:id", upload.fields([{ name: "supporting_document", maxCount: 1 }]), async (req, res) => {
+  try {
+    const update = {
+      resident_id: req.body.resident_id,
+      position: req.body.position,
+      category: req.body.category,
+      start_date: req.body.start_date || null,
+      end_date: req.body.end_date || null,
+    };
+    const documentFile = req.files?.supporting_document?.[0];
+    if (documentFile) update.supporting_document_url = await uploadToR2(documentFile, "officials/documents");
+    const { data, error } = await supabase.from("officials").update(update).eq("official_id", req.params.id).select().single();
+    if (error) throw error;
+    return res.json({ success: true, official: data });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message || "Unable to update official" });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const { error } = await supabase.from("officials").delete().eq("official_id", req.params.id);
+    if (error) throw error;
+    return res.json({ success: true, message: "Official deleted successfully" });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message || "Unable to delete official" });
+  }
+});
+
 export default router;

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { supabase } from "../config/supabase.js";
 
-const createAuthResponse = (user) => {
+export const createAuthResponse = (user) => {
   const token = jwt.sign(
     {
       userId: user.user_id,

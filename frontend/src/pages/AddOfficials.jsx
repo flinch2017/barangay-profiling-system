@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { apiUrl } from "../lib/api";
 import "../styles/addOfficial.css";
 
 export default function AddOfficial() {
   const navigate = useNavigate();
+  const { officialId } = useParams();
+  const isEditing = Boolean(officialId);
 
   const [saving, setSaving] = useState(false);
   const [residents, setResidents] = useState([]);
@@ -34,7 +36,19 @@ export default function AddOfficial() {
 
   useEffect(() => {
     fetchResidents();
+    if (isEditing) fetchOfficial();
   }, []);
+
+  async function fetchOfficial() {
+    try {
+      const response = await fetch(apiUrl(`/api/officials/${officialId}`));
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      const official = data.official;
+      setForm({ resident_id: official.resident_id || "", position: official.position || "", category: official.category || "", start_date: official.start_date || "", end_date: official.end_date || "" });
+      setResidentSearch([official.first_name, official.middle_name, official.last_name].filter(Boolean).join(" "));
+    } catch (error) { alert(error.message || "Unable to load official"); }
+  }
 
   async function fetchResidents() {
     try {
@@ -86,9 +100,9 @@ export default function AddOfficial() {
         }
 
         const response = await fetch(
-        apiUrl("/api/officials"),
+        apiUrl(isEditing ? `/api/officials/${officialId}` : "/api/officials"),
         {
-            method: "POST",
+            method: isEditing ? "PUT" : "POST",
             body: formData,
         }
         );
@@ -99,7 +113,7 @@ export default function AddOfficial() {
         throw new Error(result.message);
         }
 
-        alert("Official added successfully.");
+        alert(isEditing ? "Official updated successfully." : "Official added successfully.");
 
         navigate("/barangay/officials");
 
@@ -125,7 +139,7 @@ export default function AddOfficial() {
     <div className="add-official-page">
 
       <div className="page-header">
-        <h1>Add Official</h1>
+        <h1>{isEditing ? "Edit Official" : "Add Official"}</h1>
 
         <button
           className="back-btn"
@@ -377,7 +391,7 @@ export default function AddOfficial() {
           >
             {saving
               ? "Saving..."
-              : "Save Official"}
+              : isEditing ? "Save Changes" : "Save Official"}
           </button>
 
         </div>
