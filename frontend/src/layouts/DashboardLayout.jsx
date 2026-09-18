@@ -90,7 +90,6 @@ export default function DashboardLayout() {
           {isResident ? (
             <>
               <NavLink to="/resident/portal">My Portal</NavLink>
-              {!user.residentId && <NavLink to="/resident/claim-profile">Claim Profile</NavLink>}
               <NavLink to="/resident/notifications">Notifications</NavLink>
             </>
           ) : (

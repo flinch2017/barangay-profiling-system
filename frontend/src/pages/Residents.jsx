@@ -131,7 +131,7 @@ export default function Residents() {
       return false;
     }
 
-    // Gender
+    // Sex
     if (
       filters.gender !== "all" &&
       (r.gender || "").toLowerCase() !== filters.gender.toLowerCase()
@@ -347,7 +347,6 @@ export default function Residents() {
 
                       <option value="Female">Female</option>
 
-                      <option value="Other">Other</option>
                     </select>
                   </div>
 
@@ -493,7 +492,7 @@ export default function Residents() {
               <tr>
                 <th>Profile</th>
                 <th>Name</th>
-                <th>Gender</th>
+                <th>Sex</th>
                 <th>Birthdate</th>
                 <th>Civil Status</th>
                 <th>Contact</th>

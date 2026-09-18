@@ -1,20 +1,29 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { apiUrl } from "../lib/api";
 
 import "../styles/addResident.css";
 
+const occupations = ["Accountant", "Architect", "Artist", "Barangay Worker", "Business Owner", "Call Center Agent", "Carpenter", "Cashier", "Chef / Cook", "Construction Worker", "Dentist", "Driver", "Electrician", "Engineer", "Farmer", "Fisherfolk", "Government Employee", "Health Worker", "Homemaker", "IT Professional", "Laborer", "Lawyer", "Manager", "Mechanic", "Medical Technologist", "Military / Police", "Nurse", "Office Staff", "Overseas Filipino Worker", "Pharmacist", "Photographer", "Plumber", "Retired", "Salesperson", "Seafarer", "Security Guard", "Self-employed", "Student", "Teacher", "Technician", "Unemployed", "Vendor", "Virtual Assistant", "Other"];
+
 export default function AddResident() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { residentId } = useParams();
   const isEditing = Boolean(residentId);
+  const isResidentRegistration = location.pathname === "/resident/register";
 
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [saving, setSaving] = useState(false);
   const [loadingResident, setLoadingResident] = useState(isEditing);
   const [loadError, setLoadError] = useState("");
+  const [barangays, setBarangays] = useState([]);
+  const [selectedBarangay, setSelectedBarangay] = useState("");
+  const [noPurok, setNoPurok] = useState(false);
+  const [noContactNumber, setNoContactNumber] = useState(false);
+  const [noMiddleName, setNoMiddleName] = useState(false);
 
   const [form, setForm] = useState({
     first_name: "",
@@ -76,6 +85,11 @@ export default function AddResident() {
     loadResident();
   }, [isEditing, residentId]);
 
+  useEffect(() => {
+    if (!isResidentRegistration) return;
+    fetch(apiUrl("/api/barangays/public")).then((response) => response.json()).then((data) => setBarangays(data.barangays || [])).catch(() => setLoadError("Unable to load barangays"));
+  }, [isResidentRegistration]);
+
   function handleFileChange(e) {
     const { name, files: fileList } = e.target;
 
@@ -106,10 +120,13 @@ export default function AddResident() {
 
       // text fields
       Object.keys(form).forEach((key) => {
-        formData.append(key, form[key]);
+        formData.append(key, (key === "purok" && noPurok) || (key === "contact_number" && noContactNumber) || (key === "middle_name" && noMiddleName) ? "" : form[key]);
       });
 
-      if (!isEditing) {
+      if (isResidentRegistration) {
+        formData.append("barangay_id", selectedBarangay);
+        formData.append("purok_not_applicable", noPurok);
+      } else if (!isEditing) {
         formData.append("barangay_id", user.barangayId);
       }
 
@@ -121,9 +138,10 @@ export default function AddResident() {
       if (files.baptismal) formData.append("baptismal", files.baptismal);
 
       const response = await fetch(
-        apiUrl(isEditing ? `/api/residents/${residentId}` : "/api/residents"),
+        apiUrl(isResidentRegistration ? "/api/resident-claims/register" : isEditing ? `/api/residents/${residentId}` : "/api/residents"),
         {
           method: isEditing ? "PUT" : "POST",
+          headers: isResidentRegistration ? { Authorization: `Bearer ${localStorage.getItem("token")}` } : undefined,
           body: formData, // IMPORTANT: no JSON headers
         }
       );
@@ -134,9 +152,8 @@ export default function AddResident() {
         throw new Error(result.message);
       }
 
-      alert(isEditing ? "Resident updated successfully!" : "Resident added successfully!");
-
-      navigate("/barangay/residents");
+      alert(isResidentRegistration ? "Resident registration completed!" : isEditing ? "Resident updated successfully!" : "Resident added successfully!");
+      navigate(isResidentRegistration ? "/resident/portal" : "/barangay/residents");
 
     } catch (error) {
       console.error(error);
@@ -164,17 +181,19 @@ export default function AddResident() {
     <div className="add-resident-page">
 
       <div className="page-header">
-        <h1>{isEditing ? "Edit Resident" : "Add New Resident"}</h1>
+        <h1>{isResidentRegistration ? "Register as a Resident" : isEditing ? "Edit Resident" : "Add New Resident"}</h1>
 
         <button
           className="back-btn"
-          onClick={() => navigate("/barangay/residents")}
+          onClick={() => navigate(isResidentRegistration ? "/resident/portal" : "/barangay/residents")}
         >
           ← Back
         </button>
       </div>
 
       <form className="resident-form" onSubmit={handleSubmit}>
+
+        {isResidentRegistration && <div className="form-section"><h3>Barangay Registration</h3><div className="form-grid"><div className="form-group full-width"><label>Barangay *</label><select required value={selectedBarangay} onChange={(event) => setSelectedBarangay(event.target.value)}><option value="">Select your barangay</option>{barangays.map((barangay) => <option key={barangay.barangay_id} value={barangay.barangay_id}>{[barangay.barangay_name, barangay.municipality, barangay.province].filter(Boolean).join(", ")}</option>)}</select></div></div></div>}
 
         <div className="form-section">
           <h3>Personal Information</h3>
@@ -197,7 +216,9 @@ export default function AddResident() {
                 name="middle_name"
                 value={form.middle_name}
                 onChange={handleChange}
+                disabled={noMiddleName}
               />
+              <label className="checkbox-item"><input type="checkbox" checked={noMiddleName} onChange={(event) => setNoMiddleName(event.target.checked)} /> Not applicable</label>
             </div>
 
             <div className="form-group">
@@ -239,17 +260,16 @@ export default function AddResident() {
             </div>
 
             <div className="form-group">
-              <label>Gender *</label>
+              <label>Sex *</label>
               <select
                 required
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
               >
-                <option value="">Select Gender</option>
+                <option value="">Select Sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-                <option value="Nonbinary">Non-binary</option>
               </select>
             </div>
 
@@ -285,7 +305,9 @@ export default function AddResident() {
                 name="contact_number"
                 value={form.contact_number}
                 onChange={handleChange}
+                disabled={noContactNumber}
               />
+              <label className="checkbox-item"><input type="checkbox" checked={noContactNumber} onChange={(event) => setNoContactNumber(event.target.checked)} /> Not applicable</label>
             </div>
 
             <div className="form-group">
@@ -309,13 +331,15 @@ export default function AddResident() {
             </div>
 
             <div className="form-group">
-              <label>Purok *</label>
+              <label>Purok {noPurok ? "" : "*"}</label>
               <input
-                required
+                required={!noPurok}
                 name="purok"
                 value={form.purok}
                 onChange={handleChange}
+                disabled={noPurok}
               />
+              <label className="checkbox-item"><input type="checkbox" checked={noPurok} onChange={(event) => setNoPurok(event.target.checked)} /> Not applicable</label>
             </div>
 
           </div>
@@ -328,11 +352,14 @@ export default function AddResident() {
 
             <div className="form-group">
               <label>Occupation</label>
-              <input
+              <select
                 name="occupation"
                 value={form.occupation}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select occupation</option>
+                {occupations.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
+              </select>
             </div>
 
             <div className="form-group">
@@ -651,7 +678,7 @@ export default function AddResident() {
           <button
             type="button"
             className="cancel-btn"
-            onClick={() => navigate("/barangay/residents")}
+            onClick={() => navigate(isResidentRegistration ? "/resident/portal" : "/barangay/residents")}
           >
             Cancel
           </button>
@@ -661,7 +688,7 @@ export default function AddResident() {
             className="submit-btn"
             disabled={saving}
           >
-            {saving ? "Saving..." : isEditing ? "Save Changes" : "Save Resident"}
+            {saving ? "Saving..." : isResidentRegistration ? "Register as Resident" : isEditing ? "Save Changes" : "Save Resident"}
           </button>
         </div>
 

@@ -105,6 +105,30 @@
   box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.1);
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap input {
+  margin-bottom: 16px;
+  padding-right: 44px;
+  width: 100%;
+}
+
+.login-card .password-visibility-toggle {
+  background: transparent;
+  color: #64748b;
+  padding: 4px;
+  position: absolute;
+  right: 10px;
+  top: 9px;
+}
+
+.login-card .password-visibility-toggle:hover {
+  background: transparent;
+  color: #0f172a;
+}
+
 /* BUTTON */
 .login-card button {
   padding: 12px;

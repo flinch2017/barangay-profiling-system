@@ -63,12 +63,12 @@ export default function CertificateLayout({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const recordId = searchParams.get("record");
-  const savedRecord = recordId
-    ? JSON.parse(localStorage.getItem("certificateRecords") || "[]").find(
-        (record) => record.id === recordId
-      )
-    : null;
-  const savedIssuedBy = savedRecord?.form?.issuedBy;
+  const isReadOnly = searchParams.get("mode") === "view";
+  const [savedRecord, setSavedRecord] = useState(null);
+  const [recordLoading, setRecordLoading] = useState(Boolean(recordId));
+  const savedResident = savedRecord?.residentSnapshot || (savedRecord
+    ? { first_name: savedRecord.residentName || "Former resident" }
+    : null);
 
   const [resident, setResident] = useState(null);
   const [punongBarangay, setPunongBarangay] = useState(null);
@@ -81,11 +81,25 @@ export default function CertificateLayout({
     issuerPosition: "Punong Barangay",
     issuedDate: new Date().toISOString().slice(0, 10),
     remarks: "",
-    ...(savedRecord?.form || {}),
   });
 
   useEffect(() => {
+    if (!recordId) { setRecordLoading(false); return; }
+    async function loadRecord() {
+      try {
+        const response = await fetch(apiUrl(`/api/certificates/${recordId}`), { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Unable to load certificate record.");
+        setSavedRecord(data.certificate);
+        setForm((current) => ({ ...current, ...(data.certificate.form || {}) }));
+      } catch (err) { setError(err.message); } finally { setRecordLoading(false); }
+    }
+    loadRecord();
+  }, [recordId]);
+
+  useEffect(() => {
     async function fetchResident() {
+      if (recordLoading) return;
       try {
         setLoading(true);
         setError("");
@@ -100,13 +114,11 @@ export default function CertificateLayout({
         const residentData = await residentRes.json();
         const officialsData = await officialsRes.json();
 
-        if (!residentRes.ok) {
-          throw new Error(
-            residentData.message || "Unable to load resident."
-          );
+        if (!residentRes.ok && !savedResident) {
+          throw new Error(residentData.message || "Unable to load resident.");
         }
 
-        if (!officialsRes.ok) {
+        if (!officialsRes.ok && !savedRecord) {
           throw new Error(
             officialsData.message || "Unable to load officials."
           );
@@ -126,10 +138,10 @@ export default function CertificateLayout({
               new Date(a.start_date || 0)
           )[0];
 
-        setResident(residentData.resident);
-        setPunongBarangay(currentPunongBarangay || null);
+        setResident(residentRes.ok ? residentData.resident : savedResident);
+        setPunongBarangay(savedRecord?.punongBarangay || currentPunongBarangay || null);
 
-        if (!savedIssuedBy && currentPunongBarangay) {
+        if (!savedRecord?.form?.issuedBy && currentPunongBarangay) {
           setForm((prev) => ({
             ...prev,
             issuedBy: formatOfficialName(currentPunongBarangay),
@@ -144,7 +156,7 @@ export default function CertificateLayout({
     }
 
     fetchResident();
-  }, [residentId, savedIssuedBy]);
+  }, [residentId, recordLoading, savedRecord]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -155,21 +167,14 @@ export default function CertificateLayout({
     }));
   }
 
-  function handlePrint() {
-    saveCertificate("issued", false);
+  async function handlePrint() {
+    const saved = await saveCertificate("issued", false);
+    if (!saved) return;
     window.print();
   }
 
-  function saveCertificate(status = "draft", notify = true) {
-    const records = JSON.parse(
-      localStorage.getItem("certificateRecords") || "[]"
-    );
-
+  async function saveCertificate(status = "draft", notify = true) {
     const record = {
-      id: currentRecordId ||
-        (window.crypto?.randomUUID
-          ? window.crypto.randomUUID()
-          : `${Date.now()}-${residentId}`),
       status,
       certificateType: title,
       certificateTitle: form.customTitle || formatTitle(title),
@@ -177,32 +182,22 @@ export default function CertificateLayout({
       residentName: formatFullName(resident),
       purpose: form.purpose,
       issuedDate: form.issuedDate,
-      createdAt:
-        records.find((item) => item.id === currentRecordId)?.createdAt ||
-        new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
       form,
       punongBarangay,
+      residentSnapshot: resident,
     };
-
-    const nextRecords = records.filter((item) => item.id !== record.id);
-
-    localStorage.setItem(
-      "certificateRecords",
-      JSON.stringify([record, ...nextRecords])
-    );
-    setCurrentRecordId(record.id);
-
-    if (notify) {
-      alert(
-        status === "issued"
-          ? "Certificate marked as issued."
-          : "Certificate draft saved."
-      );
-    }
+    try {
+      const response = await fetch(apiUrl(currentRecordId ? `/api/certificates/${currentRecordId}` : "/api/certificates"), { method: currentRecordId ? "PUT" : "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "Content-Type": "application/json" }, body: JSON.stringify(record) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Unable to save certificate.");
+      setCurrentRecordId(data.certificate.id);
+      setSavedRecord(data.certificate);
+      if (notify) alert(status === "issued" ? "Certificate marked as issued." : "Certificate draft saved.");
+      return true;
+    } catch (err) { setError(err.message); return false; }
   }
 
-  if (loading) {
+  if (loading || recordLoading) {
     return <p className="certificate-message">Loading resident...</p>;
   }
 
@@ -232,15 +227,18 @@ export default function CertificateLayout({
         </button>
 
         <h1>{formatTitle(title)}</h1>
+        {isReadOnly && <p className="certificate-read-only">Viewing saved certificate history.</p>}
 
         <ResidentSummary resident={resident} />
 
+        <fieldset className="certificate-inputs" disabled={isReadOnly}>
         <div className="form-group">
           <label>Purpose</label>
           <textarea
             name="purpose"
             value={form.purpose}
             onChange={handleChange}
+            readOnly={isReadOnly}
             placeholder="Example: employment, school requirement, financial assistance"
           />
         </div>
@@ -249,6 +247,7 @@ export default function CertificateLayout({
           form={form}
           handleChange={handleChange}
           resident={resident}
+          readOnly={isReadOnly}
         />
 
         <div className="form-grid">
@@ -259,6 +258,7 @@ export default function CertificateLayout({
               name="issuedDate"
               value={form.issuedDate}
               onChange={handleChange}
+              readOnly={isReadOnly}
             />
           </div>
 
@@ -268,6 +268,7 @@ export default function CertificateLayout({
               name="issuedBy"
               value={form.issuedBy}
               onChange={handleChange}
+              readOnly={isReadOnly}
               placeholder={
                 punongBarangay
                   ? formatOfficialName(punongBarangay)
@@ -282,6 +283,7 @@ export default function CertificateLayout({
               name="issuerPosition"
               value={form.issuerPosition}
               onChange={handleChange}
+              readOnly={isReadOnly}
             />
           </div>
         </div>
@@ -293,11 +295,13 @@ export default function CertificateLayout({
               name="remarks"
               value={form.remarks}
               onChange={handleChange}
+              readOnly={isReadOnly}
             />
           </div>
         )}
+        </fieldset>
 
-        <div className="button-row">
+        {!isReadOnly && <div className="button-row">
           <button
             type="button"
             onClick={() => saveCertificate("draft")}
@@ -312,7 +316,7 @@ export default function CertificateLayout({
           >
             Generate PDF
           </button>
-        </div>
+        </div>}
       </div>
 
       <CertificatePreview

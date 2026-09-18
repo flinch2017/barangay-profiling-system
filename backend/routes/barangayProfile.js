@@ -6,6 +6,14 @@ import { uploadToR2 } from "../utils/uploadToR2.js";
 
 const router = express.Router();
 
+router.get("/public", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("barangays").select("barangay_id, barangay_name, municipality, province").order("barangay_name");
+    if (error) throw error;
+    return res.json({ barangays: data || [] });
+  } catch (error) { return res.status(500).json({ message: "Unable to load barangays" }); }
+});
+
 router.get("/profile", verifyToken, async (req, res) => {
   try {
     if (!req.user.barangayId) return res.json({ profile: null });

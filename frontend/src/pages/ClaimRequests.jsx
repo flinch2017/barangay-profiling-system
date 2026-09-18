@@ -14,13 +14,13 @@ export default function ClaimRequests() {
   async function loadRequests() {
     const response = await fetch(apiUrl("/api/resident-claims"), { headers });
     const data = await response.json();
-    if (response.ok) setRequests(data.requests || []); else setMessage(data.message);
+    if (response.ok) { const registrations = (data.registrationRequests || []).map((request) => ({ claim_id: request.registration_id, requestType: "registration", status: request.status, created_at: request.created_at, first_name: request.profile?.first_name, middle_name: request.profile?.middle_name, last_name: request.profile?.last_name, email: request.profile?.email, live_birth_url: request.live_birth_url, baptismal_url: request.baptismal_url, profile: request.profile })); setRequests([...(data.requests || []), ...registrations]); } else setMessage(data.message);
   }
   useEffect(() => { loadRequests(); }, []);
 
   async function review(request, decision) {
     setWorkingId(request.claim_id);
-    const response = await fetch(apiUrl(`/api/resident-claims/${request.claim_id}`), { method: "PATCH", headers: { ...headers, "Content-Type": "application/json" }, body: JSON.stringify({ decision }) });
+    const response = await fetch(apiUrl(`/api/resident-claims/${request.requestType === "registration" ? "registrations/" : ""}${request.claim_id}`), { method: "PATCH", headers: { ...headers, "Content-Type": "application/json" }, body: JSON.stringify({ decision }) });
     const data = await response.json(); setMessage(data.message);
     if (response.ok) await loadRequests();
     setWorkingId("");
@@ -29,7 +29,7 @@ export default function ClaimRequests() {
   async function deleteRequest(request) {
     if (!window.confirm(`Delete the claim request from ${request.first_name} ${request.last_name}? This cannot be undone.`)) return;
     setWorkingId(request.claim_id);
-    const response = await fetch(apiUrl(`/api/resident-claims/${request.claim_id}`), { method: "DELETE", headers });
+    const response = await fetch(apiUrl(`/api/resident-claims/${request.requestType === "registration" ? "registrations/" : ""}${request.claim_id}`), { method: "DELETE", headers });
     const data = await response.json(); setMessage(data.message);
     if (response.ok) setRequests((current) => current.filter(({ claim_id }) => claim_id !== request.claim_id));
     setWorkingId("");
@@ -45,8 +45,8 @@ export default function ClaimRequests() {
     <section className="claim-request-list">{visibleRequests.length ? visibleRequests.map((request) => {
       const working = workingId === request.claim_id;
       const name = `${request.first_name} ${request.middle_name || ""} ${request.last_name}`.replace(/\s+/g, " ").trim();
-      const profileName = [request.residents?.first_name, request.residents?.middle_name, request.residents?.last_name].filter(Boolean).join(" ");
-      return <article className="claim-request-card" key={request.claim_id}><div className="claim-request-person"><div className="claim-request-avatar">{request.first_name?.charAt(0)}</div><div><h2>{name}</h2><p>{request.email}</p><small>Submitted {new Date(request.created_at).toLocaleDateString()}</small></div></div><div className="claim-request-profile"><span>REQUESTED PROFILE</span><strong>{profileName || "Resident profile"}</strong><p>{request.residents?.birthdate || "Birthdate unavailable"}</p></div><div className="claim-request-documents"><span>DOCUMENTS</span><div>{request.live_birth_url ? <a href={request.live_birth_url} target="_blank" rel="noreferrer"><FiFileText /> Birth certificate</a> : <em>Birth certificate unavailable</em>}{request.baptismal_url ? <a href={request.baptismal_url} target="_blank" rel="noreferrer"><FiFileText /> Baptismal certificate</a> : <em>Baptismal unavailable</em>}</div></div><div className="claim-request-actions">{request.status === "pending" ? <><button disabled={working} className="approve" onClick={() => review(request, "approved")}><FiCheck /> Approve</button><button disabled={working} className="reject" onClick={() => review(request, "rejected")}><FiX /> Reject</button></> : <span className={`claim-status ${request.status}`}>{request.status}</span>}<button disabled={working} className="delete" onClick={() => deleteRequest(request)} aria-label={`Delete ${name}'s request`}><FiTrash2 /></button></div></article>;
+      const profileName = request.requestType === "registration" ? "New resident registration" : [request.residents?.first_name, request.residents?.middle_name, request.residents?.last_name].filter(Boolean).join(" ");
+      return <article className="claim-request-card" key={request.claim_id}><div className="claim-request-person"><div className="claim-request-avatar">{request.first_name?.charAt(0)}</div><div><h2>{name}</h2><p>{request.email}</p><small>Submitted {new Date(request.created_at).toLocaleDateString()}</small></div></div><div className="claim-request-profile"><span>{request.requestType === "registration" ? "NEW REGISTRATION" : "REQUESTED PROFILE"}</span><strong>{profileName || "Resident profile"}</strong><p>{request.residents?.birthdate || request.profile?.birthdate || "Birthdate unavailable"}</p></div><div className="claim-request-documents"><span>DOCUMENTS</span><div>{request.live_birth_url ? <a href={request.live_birth_url} target="_blank" rel="noreferrer"><FiFileText /> Birth certificate</a> : <em>Birth certificate unavailable</em>}{request.baptismal_url ? <a href={request.baptismal_url} target="_blank" rel="noreferrer"><FiFileText /> Baptismal certificate</a> : <em>Baptismal unavailable</em>}</div></div><div className="claim-request-actions">{request.status === "pending" ? <><button disabled={working} className="approve" onClick={() => review(request, "approved")}><FiCheck /> Approve</button><button disabled={working} className="reject" onClick={() => review(request, "rejected")}><FiX /> Reject</button></> : <span className={`claim-status ${request.status}`}>{request.status}</span>}<button disabled={working} className="delete" onClick={() => deleteRequest(request)} aria-label={`Delete ${name}'s request`}><FiTrash2 /></button></div></article>;
     }) : <div className="claim-empty"><FiFileText /><h2>No {filter === "all" ? "claim requests" : filter + " requests"}</h2><p>New resident profile claims will appear here for review.</p></div>}</section>
   </main>;
 }

@@ -111,6 +111,7 @@ function App() {
         <Route path="/barangay/claim-requests" element={<ClaimRequests />} />
         <Route path="/resident/portal" element={<ResidentPortal />} />
         <Route path="/resident/claim-profile" element={<ClaimResidentProfile />} />
+        <Route path="/resident/register" element={<AddResident />} />
         <Route path="/resident/notifications" element={<ResidentNotifications />} />
 
       </Route>

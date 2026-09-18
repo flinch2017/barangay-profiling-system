@@ -170,6 +170,15 @@
   border-top:1px solid #f1f5f9;
 }
 
+.certificate-history-row { cursor: pointer; }
+.certificate-list-error { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #b91c1c; font-size: 13px; margin: 0 0 14px; padding: 11px 13px; }
+.certificate-history-row:hover { background: #f8fafc; }
+.table-action + .table-action { margin-left: 8px; }
+.table-action-danger { border-color: #fecaca; color: #b91c1c; }
+.certificate-read-only { color: #64748b; font-size: 13px; margin: -10px 0 18px; }
+.certificate-inputs { border: 0; margin: 0; min-width: 0; padding: 0; }
+.certificate-inputs:disabled { opacity: .75; }
+
 /* EMPTY */
 
 .empty-state{

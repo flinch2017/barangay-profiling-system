@@ -10,6 +10,8 @@ import residentsRoutes from "./routes/residents.js";
 import officialsRoutes from "./routes/officials.js";
 import residentClaimsRoutes from "./routes/residentClaims.js";
 import barangayProfileRoutes from "./routes/barangayProfile.js";
+import certificateRoutes from "./routes/certificates.js";
+import notificationRoutes from "./routes/notifications.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -48,6 +50,8 @@ app.use("/api/residents", residentsRoutes);
 app.use("/api/officials", officialsRoutes);
 app.use("/api/resident-claims", residentClaimsRoutes);
 app.use("/api/barangays", barangayProfileRoutes);
+app.use("/api/certificates", certificateRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

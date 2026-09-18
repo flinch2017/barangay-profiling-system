@@ -140,7 +140,7 @@ export default function ResidentProfile() {
             )}
 
             {resident.gender && (
-              <p><b>Gender:</b> {resident.gender}</p>
+              <p><b>Sex:</b> {resident.gender}</p>
             )}
 
             {resident.birthdate && (

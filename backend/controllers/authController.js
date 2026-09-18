@@ -5,12 +5,12 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 
 const usernamePattern = /^[a-zA-Z][a-zA-Z0-9_.]{2,29}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8}$/;
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 function validateAccountDetails({ username, email, password }) {
   if (username && !usernamePattern.test(username.trim())) return "Username must be 3–30 characters and use letters, numbers, periods, or underscores only.";
   if (email && !emailPattern.test(email.trim().toLowerCase())) return "Enter a valid email address.";
-  if (password && !passwordPattern.test(password)) return "Password must be exactly 8 characters and include uppercase, lowercase, number, and special character.";
+  if (password && !passwordPattern.test(password)) return "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.";
   return "";
 }
 
@@ -19,9 +19,8 @@ export const createAuthResponse = (user) => {
     {
       userId: user.user_id,
       role: user.role,
-      barangayId: user.barangay_id
-      ,residentId: user.resident_id,
-      updatedAt: user.updated_at
+      barangayId: user.barangay_id,
+      residentId: user.resident_id
     },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
@@ -232,7 +231,7 @@ export const updateAccountProfile = [verifyToken, async (req, res) => {
     const trimmedUsername = username.trim(); const trimmedEmail = email.trim().toLowerCase();
     const { data: duplicate } = await supabase.from("users").select("user_id").or(`username.eq.${trimmedUsername},email.eq.${trimmedEmail}`).neq("user_id", currentUser.user_id).maybeSingle();
     if (duplicate) return res.status(409).json({ message: "Username or email is already in use" });
-    const update = { username: trimmedUsername, email: trimmedEmail, updated_at: new Date().toISOString() };
+    const update = { username: trimmedUsername, email: trimmedEmail };
     if (newPassword) update.password_hash = await bcrypt.hash(newPassword, 10);
     const { data: updatedUser, error: updateError } = await supabase.from("users").update(update).eq("user_id", currentUser.user_id).select("*").single();
     if (updateError) throw updateError;

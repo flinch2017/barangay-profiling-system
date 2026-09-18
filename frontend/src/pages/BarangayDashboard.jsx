@@ -84,13 +84,15 @@ export default function BarangayDashboard() {
   const [error, setError] = useState("");
 
   async function requestDashboardData() {
-    const [residentsRes, officialsRes] = await Promise.all([
+    const [residentsRes, officialsRes, certificatesRes] = await Promise.all([
       fetch(apiUrl("/api/residents")),
       fetch(apiUrl("/api/officials")),
+      fetch(apiUrl("/api/certificates"), { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }),
     ]);
 
     const residentsData = await residentsRes.json();
     const officialsData = await officialsRes.json();
+    const certificatesData = await certificatesRes.json();
 
     if (!residentsRes.ok) {
       throw new Error(residentsData.message || "Unable to load residents.");
@@ -100,12 +102,14 @@ export default function BarangayDashboard() {
       throw new Error(officialsData.message || "Unable to load officials.");
     }
 
+    if (!certificatesRes.ok) {
+      throw new Error(certificatesData.message || "Unable to load certificate history.");
+    }
+
     return {
       residents: residentsData.residents || [],
       officials: officialsData.officials || [],
-      certificates: JSON.parse(
-        localStorage.getItem("certificateRecords") || "[]"
-      ),
+      certificates: certificatesData.certificates || [],
     };
   }
 
@@ -436,7 +440,7 @@ export default function BarangayDashboard() {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Gender</th>
+                  <th>Sex</th>
                   <th>Purok</th>
                   <th>Status</th>
                 </tr>
@@ -490,7 +494,7 @@ export default function BarangayDashboard() {
                   type="button"
                   onClick={() =>
                     navigate(
-                      `/barangay/certificates/new/${certificate.certificateType}/${certificate.residentId}?record=${certificate.id}`
+                      `/barangay/certificates/new/${certificate.certificateType}/${certificate.residentId}?record=${certificate.id}&mode=view`
                     )
                   }
                 >

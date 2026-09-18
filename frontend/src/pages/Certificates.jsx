@@ -1,15 +1,41 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlus, FiSearch, FiFileText } from "react-icons/fi";
+import { apiUrl } from "../lib/api";
 import "../styles/certificates.css";
 
 export default function Certificates() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("requests");
   const [search, setSearch] = useState("");
-  const [records] = useState(() =>
-    JSON.parse(localStorage.getItem("certificateRecords") || "[]")
-  );
+  const [records, setRecords] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadCertificates() {
+      try {
+        const response = await fetch(apiUrl("/api/certificates"), { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Unable to load certificate history.");
+        const cloudRecords = data.certificates || [];
+        const localRecords = JSON.parse(localStorage.getItem("certificateRecords") || "[]");
+        if (!cloudRecords.length && localRecords.length) {
+          const migrated = await Promise.all(localRecords.map(async (record) => {
+            const payload = { ...record, residentSnapshot: record.residentSnapshot || { first_name: record.residentName || "Former resident" } };
+            const saveResponse = await fetch(apiUrl("/api/certificates"), { method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            const saved = await saveResponse.json();
+            return saveResponse.ok ? saved.certificate : null;
+          }));
+          const migratedRecords = migrated.filter(Boolean);
+          if (migratedRecords.length) localStorage.removeItem("certificateRecords");
+          setRecords(migratedRecords);
+        } else {
+          setRecords(cloudRecords);
+        }
+      } catch (err) { setError(err.message); }
+    }
+    loadCertificates();
+  }, []);
 
   const visibleRecords = useMemo(() => {
     const status = activeTab === "requests" ? "draft" : "issued";
@@ -34,6 +60,20 @@ export default function Certificates() {
     navigate(
       `/barangay/certificates/new/${encodeURIComponent(type)}`
     );
+  }
+
+  function certificateUrl(record, mode = "view") {
+    return `/barangay/certificates/new/${record.certificateType}/${record.residentId}?record=${record.id}&mode=${mode}`;
+  }
+
+  async function deleteCertificate(recordId) {
+    if (!window.confirm("Delete this certificate record? This cannot be undone.")) return;
+    try {
+      const response = await fetch(apiUrl(`/api/certificates/${recordId}`), { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Unable to delete certificate record.");
+      setRecords((current) => current.filter((record) => record.id !== recordId));
+    } catch (err) { setError(err.message); }
   }
 
   return (
@@ -141,6 +181,7 @@ export default function Certificates() {
         </div>
 
       </div>
+      {error && <p className="certificate-list-error">{error}</p>}
 
       {/* Tabs */}
 
@@ -222,7 +263,7 @@ export default function Certificates() {
               </tr>
             ) : (
               visibleRecords.map((record) => (
-                <tr key={record.id}>
+                <tr key={record.id} className="certificate-history-row" onClick={() => navigate(certificateUrl(record))}>
                   <td>{record.residentName}</td>
                   <td>{record.certificateTitle}</td>
                   <td>{record.purpose || "-"}</td>
@@ -235,14 +276,11 @@ export default function Certificates() {
                   <td>
                     <button
                       className="table-action"
-                      onClick={() =>
-                        navigate(
-                          `/barangay/certificates/new/${record.certificateType}/${record.residentId}?record=${record.id}`
-                        )
-                      }
+                      onClick={(event) => { event.stopPropagation(); navigate(certificateUrl(record, "edit")); }}
                     >
-                      Open
+                      Edit
                     </button>
+                    <button className="table-action table-action-danger" onClick={(event) => { event.stopPropagation(); deleteCertificate(record.id); }}>Delete</button>
                   </td>
                 </tr>
               ))

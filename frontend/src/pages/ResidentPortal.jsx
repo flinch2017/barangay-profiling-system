@@ -6,6 +6,7 @@ export default function ResidentPortal() {
   const [resident, setResident] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [latestClaim, setLatestClaim] = useState(null);
+  const [latestRegistration, setLatestRegistration] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function ResidentPortal() {
         if (!response.ok) throw new Error(result.message);
         setResident(result.resident);
         setLatestClaim(result.latestClaim);
+        setLatestRegistration(result.latestRegistration);
         if (result.resident?.resident_id) {
           const user = JSON.parse(localStorage.getItem("user") || "{}");
           localStorage.setItem("user", JSON.stringify({
@@ -37,7 +39,7 @@ export default function ResidentPortal() {
 
   if (error) return <div className="resident-portal"><p>{error}</p></div>;
   if (!loaded) return <div className="resident-portal"><p>Loading your portal...</p></div>;
-  if (!resident) return <div className="resident-portal"><section className="portal-welcome"><div><p className="portal-kicker">RESIDENT PORTAL</p><h1>Welcome to your portal</h1><p>{latestClaim?.status === "pending" ? "Your profile claim is being reviewed." : "Claim your resident profile to unlock your verified profile and documents."}</p></div></section><section className="portal-card"><h2>Profile claim</h2><p>{latestClaim?.status === "rejected" ? "Your latest request was not approved. Please contact your barangay office before submitting another request." : latestClaim?.status === "pending" ? "Your claim is pending. You will be notified when the barangay administrator decides." : "You have not claimed a resident profile yet."}</p>{!latestClaim || latestClaim.status === "rejected" ? <a className="portal-primary-action" href="/resident/claim-profile">Claim a resident profile</a> : <a className="portal-primary-action" href="/resident/notifications">View notifications</a>}</section></div>;
+  if (!resident) { const registrationPending = latestRegistration?.status === "pending"; return <div className="resident-portal"><section className="portal-welcome"><div><p className="portal-kicker">RESIDENT PORTAL</p><h1>Welcome to your portal</h1><p>{registrationPending ? "Your resident registration is being reviewed." : latestClaim?.status === "pending" ? "Your profile claim is being reviewed." : "Claim an existing profile or register if you do not have one yet."}</p></div></section><section className="portal-card"><h2>Resident profile</h2><p>{registrationPending ? "Your registration is pending barangay approval. You will be notified when it is reviewed." : "Choose the option that matches your situation."}</p><div className="portal-action-row">{!registrationPending && (!latestClaim || latestClaim.status === "rejected") && <a className="portal-primary-action" href="/resident/claim-profile">Claim a resident profile</a>}{!registrationPending && <a className="portal-secondary-action" href="/resident/register">Register as a resident</a>}{(registrationPending || latestClaim?.status === "pending") && <a className="portal-primary-action" href="/resident/notifications">View notifications</a>}</div></section></div>; }
 
   const fullName = [resident.first_name, resident.middle_name, resident.last_name, resident.suffix].filter(Boolean).join(" ");
   const address = [resident.street, resident.purok && `Purok ${resident.purok}`, resident.barangay_name, resident.municipality, resident.province].filter(Boolean).join(", ");

@@ -213,7 +213,7 @@ export default function CertificateResidentSelect() {
                     <div className="detail-grid">
 
                       <p>
-                        <b>Gender:</b>{" "}
+                        <b>Sex:</b>{" "}
                         {resident.gender}
                       </p>
 
