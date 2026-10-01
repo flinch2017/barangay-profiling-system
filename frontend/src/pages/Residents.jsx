@@ -520,8 +520,12 @@ export default function Residents() {
                   >
                     <td>
                       <img
-                        src={r.pfp_url || "/default-avatar.png"}
-                        alt="profile"
+                        src={r.pfp_url || "/default-avatar.svg"}
+                        onError={(event) => {
+                          event.currentTarget.onerror = null;
+                          event.currentTarget.src = "/default-avatar.svg";
+                        }}
+                        alt="Resident profile"
                         className="resident-pfp"
                       />
                     </td>
