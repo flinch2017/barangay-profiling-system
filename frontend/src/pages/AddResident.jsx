@@ -142,7 +142,6 @@ export default function AddResident() {
         {
           method: isEditing ? "PUT" : "POST",
           headers: isResidentRegistration ? { Authorization: `Bearer ${localStorage.getItem("token")}` } : undefined,
-          ...(isEditing && !isResidentRegistration ? { headers: { Authorization: "Bearer " + localStorage.getItem("token") } } : {}),
           body: formData, // IMPORTANT: no JSON headers
         }
       );

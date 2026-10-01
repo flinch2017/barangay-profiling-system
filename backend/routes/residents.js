@@ -2,7 +2,6 @@ import express from "express";
 import { supabase } from "../config/supabase.js";
 import upload from "../middleware/upload.js";
 import { uploadToR2 } from "../utils/uploadToR2.js";
-import { verifyToken } from "../middleware/authMiddleware.js";
 
 
 const router = express.Router();
@@ -90,7 +89,6 @@ router.get("/", async (req, res) => {
 
 router.put(
   "/:id",
-  verifyToken,
   upload.fields([
     { name: "pfp", maxCount: 1 },
     { name: "live_birth", maxCount: 1 },
@@ -99,18 +97,6 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
-      if (req.user.role !== "barangay_admin") {
-        return res.status(403).json({ success: false, message: "Barangay administrator access required" });
-      }
-      const { data: existingResident, error: residentError } = await supabase
-        .from("residents")
-        .select("barangay_id")
-        .eq("resident_id", id)
-        .maybeSingle();
-      if (residentError) throw residentError;
-      if (!existingResident || existingResident.barangay_id !== req.user.barangayId) {
-        return res.status(404).json({ success: false, message: "Resident not found" });
-      }
       const updateData = { ...req.body };
 
       if (updateData.gender && !["Male", "Female"].includes(updateData.gender)) {
