@@ -156,15 +156,9 @@ router.get("/me", verifyToken, async (req, res) => {
       .eq("resident_id", account.resident_id)
       .single();
     if (error) throw error;
-    const { data: pendingProfileUpdate, error: updateError } = await supabase
-      .from("resident_profile_update_requests")
-      .select("request_id, status, created_at")
-      .eq("resident_id", account.resident_id)
-      .eq("status", "pending")
-      .maybeSingle();
-    if (updateError) throw updateError;
+    await createNotification({ recipientUserId: req.user.userId, type: "profile_update", title: "Profile update submitted", message: "Your requested profile changes are awaiting barangay approval.", link: "/resident/notifications" });
 
-    return res.json({ latestClaim, latestRegistration, pendingProfileUpdate,
+    return res.json({ latestClaim, latestRegistration,
       resident: {
         ...data,
         barangay_name: data.barangays?.barangay_name,
@@ -207,39 +201,27 @@ router.delete("/registrations/:id", verifyToken, async (req, res) => {
   } catch (error) { return res.status(500).json({ message: "Unable to delete registration request" }); }
 });
 
-const editableResidentFields = ["first_name", "middle_name", "last_name", "suffix", "contact_number", "email", "birthdate", "gender", "civil_status", "street", "purok", "occupation", "salary", "educational_level", "school_name", "year_level", "course", "currently_enrolled", "graduation_year", "fourps_beneficiary", "senior_citizen", "voter", "pfp_url", "live_birth_url", "baptismal_url"];
-const booleanResidentFields = ["currently_enrolled", "fourps_beneficiary", "senior_citizen", "voter"];
+const editableResidentFields = ["first_name", "middle_name", "last_name", "suffix", "contact_number", "email", "birthdate", "gender", "civil_status", "street", "purok", "occupation", "salary", "educational_level", "school_name", "year_level", "course", "currently_enrolled", "graduation_year", "fourps_beneficiary", "senior_citizen", "voter"];
 
-router.post("/profile-updates", verifyToken, uploadFields, async (req, res) => {
+router.post("/profile-updates", verifyToken, async (req, res) => {
   try {
     if (req.user.role !== "resident") return res.status(403).json({ message: "Resident access required" });
     const { data: account, error: accountError } = await supabase.from("users").select("resident_id").eq("user_id", req.user.userId).single();
-    if (accountError) throw accountError;
-    if (!account?.resident_id) return res.status(403).json({ message: "Claim a resident profile before requesting updates" });
-    const { data: existing, error: existingError } = await supabase.from("resident_profile_update_requests").select("request_id").eq("resident_id", account.resident_id).eq("status", "pending").maybeSingle();
-    if (existingError) throw existingError;
-    if (existing) return res.status(409).json({ message: "You already have a pending profile update request" });
-    const changes = Object.fromEntries(editableResidentFields
-      .filter((field) => !["pfp_url", "live_birth_url", "baptismal_url"].includes(field) && Object.hasOwn(req.body, field))
-      .map((field) => [field, booleanResidentFields.includes(field) ? req.body[field] === true || req.body[field] === "true" : req.body[field]]));
-    const pfpFile = req.files?.pfp?.[0];
-    const birthFile = req.files?.live_birth?.[0];
-    const baptismalFile = req.files?.baptismal?.[0];
-    if (pfpFile) changes.pfp_url = await uploadToR2(pfpFile);
-    if (birthFile) changes.live_birth_url = await uploadToR2(birthFile);
-    if (baptismalFile) changes.baptismal_url = await uploadToR2(baptismalFile);
+    if (accountError || !account?.resident_id) return res.status(403).json({ message: "Claim a resident profile before requesting updates" });
+    const changes = Object.fromEntries(editableResidentFields.filter((field) => Object.hasOwn(req.body, field)).map((field) => [field, req.body[field]]));
     if (!Object.keys(changes).length) return res.status(400).json({ message: "No profile changes were submitted" });
     if (changes.gender && !["Male", "Female"].includes(changes.gender)) return res.status(400).json({ message: "Sex must be Male or Female" });
+    const { data: existing } = await supabase.from("resident_profile_update_requests").select("request_id").eq("resident_id", account.resident_id).eq("status", "pending").maybeSingle();
+    if (existing) return res.status(409).json({ message: "You already have a pending profile update request" });
     const { error } = await supabase.from("resident_profile_update_requests").insert({ resident_id: account.resident_id, requester_user_id: req.user.userId, changes });
     if (error) throw error;
-    await createNotification({ recipientUserId: req.user.userId, type: "profile_update", title: "Profile update submitted", message: "Your requested profile changes are awaiting barangay approval.", link: "/resident/notifications" });
     return res.status(201).json({ message: "Your profile update request has been sent for barangay approval" });
   } catch (error) { console.error(error); return res.status(500).json({ message: `Unable to request profile update: ${error.message}` }); }
 });
 
 router.get("/profile-updates", verifyToken, async (req, res) => {
   if (req.user.role !== "barangay_admin") return res.status(403).json({ message: "Forbidden" });
-  const { data, error } = await supabase.from("resident_profile_update_requests").select("*, residents(*)").order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("resident_profile_update_requests").select("*, residents(first_name, middle_name, last_name, barangay_id)").order("created_at", { ascending: false });
   if (error) return res.status(500).json({ message: error.message });
   const requests = data.filter((request) => request.residents?.barangay_id === req.user.barangayId);
   return res.json({ requests });
