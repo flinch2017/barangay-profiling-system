@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { FiLogOut, FiSettings } from "react-icons/fi";
 import { apiUrl } from "../lib/api";
 import "../styles/global.css";
 
@@ -15,6 +16,11 @@ export default function DashboardLayout() {
   const accountMenuRef = useRef(null);
   const isResident = user?.role === "resident";
   const logoUrl = isResident ? user?.pfp_url : profile.logoDataUrl || user?.pfp_url;
+  const accountName = user?.username || "Account";
+  const accountRole = user?.role
+    ?.split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 
   useEffect(() => {
     function syncProfile() {
@@ -109,7 +115,7 @@ export default function DashboardLayout() {
             className="top-nav-user-btn"
             onClick={() => setIsAccountMenuOpen((isOpen) => !isOpen)}
             type="button"
-            aria-label="Open account menu"
+            aria-label={`Account menu for ${accountName}`}
             aria-expanded={isAccountMenuOpen}
             aria-haspopup="menu"
           >
@@ -124,16 +130,21 @@ export default function DashboardLayout() {
 
           {isAccountMenuOpen && (
             <div className="account-dropdown" role="menu">
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setIsAccountMenuOpen(false);
-                  navigate(isResident ? "/resident/portal" : "/settings");
-                }}
-              >
-                Profile
-              </button>
+              <div className="account-dropdown-identity" role="group" aria-label="Signed-in account">
+                <div className="account-dropdown-avatar" aria-hidden="true">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="" />
+                  ) : (
+                    accountName.charAt(0).toUpperCase()
+                  )}
+                </div>
+                <div className="account-dropdown-user">
+                  <span>Signed in as</span>
+                  <strong title={accountName}>{accountName}</strong>
+                  {user?.email && <small title={user.email}>{user.email}</small>}
+                  {accountRole && <span className="account-dropdown-role">{accountRole}</span>}
+                </div>
+              </div>
               <button
                 type="button"
                 role="menuitem"
@@ -142,10 +153,12 @@ export default function DashboardLayout() {
                   navigate("/settings");
                 }}
               >
-                Settings
+                <FiSettings aria-hidden="true" />
+                <span>Settings</span>
               </button>
               <button type="button" role="menuitem" className="account-dropdown-logout" onClick={handleLogout}>
-                Logout
+                <FiLogOut aria-hidden="true" />
+                <span>Log out</span>
               </button>
             </div>
           )}
