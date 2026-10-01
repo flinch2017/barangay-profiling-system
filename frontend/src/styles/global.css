@@ -315,33 +315,111 @@ p {
 .account-dropdown {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, .16);
   display: grid;
-  gap: 3px;
-  min-width: 150px;
-  padding: 6px;
+  gap: 4px;
+  min-width: 260px;
+  padding: 8px;
   position: absolute;
   right: 0;
   top: calc(100% + 10px);
   z-index: 30;
 }
 
+.account-dropdown-identity {
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  margin: -1px 0 4px;
+  min-width: 0;
+  padding: 8px 6px 14px;
+}
+
+.account-dropdown-avatar {
+  align-items: center;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  border-radius: 50%;
+  color: #1d4ed8;
+  display: flex;
+  flex: 0 0 42px;
+  font-size: 16px;
+  font-weight: 700;
+  height: 42px;
+  justify-content: center;
+  overflow: hidden;
+  width: 42px;
+}
+
+.account-dropdown-avatar img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.account-dropdown-user {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.account-dropdown-user > span:first-child {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.account-dropdown-user strong,
+.account-dropdown-user small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-dropdown-user strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.account-dropdown-user small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.account-dropdown-user .account-dropdown-role {
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 3px;
+  text-transform: capitalize;
+}
+
 .account-dropdown button {
+  align-items: center;
   background: transparent;
   border: 0;
   border-radius: 7px;
   color: #334155;
   cursor: pointer;
+  display: flex;
   font-size: 13px;
   font-weight: 600;
-  padding: 9px 10px;
+  gap: 10px;
+  padding: 10px;
   text-align: left;
+}
+
+.account-dropdown button svg {
+  color: #64748b;
+  font-size: 16px;
 }
 
 .account-dropdown button:hover { background: #f1f5f9; }
 .account-dropdown .account-dropdown-logout { color: #b91c1c; }
 .account-dropdown .account-dropdown-logout:hover { background: #fef2f2; }
+.account-dropdown .account-dropdown-logout svg { color: inherit; }
 
 .top-nav-logout-btn {
   background: #fff;
