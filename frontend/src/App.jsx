@@ -20,6 +20,7 @@ import CertificateResidentSelect from "./pages/CertificateResidentSelect";
 import CertificateGeneration from "./pages/CertificateGeneration";
 import ClaimRequests from "./pages/ClaimRequests";
 import ResidentPortal from "./pages/ResidentPortal";
+import ResidentProfileUpdate from "./pages/ResidentProfileUpdate";
 import ClaimResidentProfile from "./pages/ClaimResidentProfile";
 import ResidentNotifications from "./pages/ResidentNotifications";
 import OfficialProfile from "./pages/OfficialProfile";
@@ -110,6 +111,7 @@ function App() {
 
         <Route path="/barangay/claim-requests" element={<ClaimRequests />} />
         <Route path="/resident/portal" element={<ResidentPortal />} />
+        <Route path="/resident/profile-update" element={<ResidentProfileUpdate />} />
         <Route path="/resident/claim-profile" element={<ClaimResidentProfile />} />
         <Route path="/resident/register" element={<AddResident />} />
         <Route path="/resident/notifications" element={<ResidentNotifications />} />
